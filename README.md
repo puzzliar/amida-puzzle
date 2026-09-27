@@ -63,6 +63,8 @@
 | `supabase/schema.sql`, `supabase/stages_seed.sql` | オンラインランキング用DB定義（未適用） |
 
 ## 運用
+- **検証環境**: https://puzzliar.github.io/amida-puzzle/ （GitHub Pages / リポジトリ `puzzliar/amida-puzzle` の main ブランチ直下を配信）
+- 更新手順: `app/` で変更をコミットして `git push` → 1分程度で反映（sw.js はネット優先なので再読み込みで最新になる）
 - ステージ再生成: `node app/scripts/gen_stages.js`（公開後に再生成すると問題が変わるので原則しない）
 - ローカル確認: `python3 -m http.server 8765 --directory app`
 - オンラインランキング化: `supabase/schema.sql` → `supabase/stages_seed.sql` を適用し、`config.js` に URL と publishable(anon) キーを設定。未設定時は端末内ランキング
