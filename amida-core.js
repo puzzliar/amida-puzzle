@@ -135,6 +135,48 @@
     return { ok, crossings: t.crossings, cuts: cut.size, perfect: ok && cut.size === stage.minCut, trace: t };
   }
 
+  // 盤面サイズに応じた「消せる本数の上限」（削除モード各レベルと同じ基準）
+  function cutLimit(N, R) {
+    const t = N * R;
+    return t < 40 ? 2 : t < 90 ? 3 : t < 140 ? 4 : 5;
+  }
+
+  /**
+   * 削除型の問題として成立するか判定（ステージ生成・エンドレス共通の除外条件）
+   *   - スタート地点に接する横線をすべて消せば最短…という単純ケースは除外
+   *   - 消さないままより必ずルート数を短縮できる
+   *   - 最少解は2本以上、requireFar なら全最少解がスタート周辺だけで完結しない
+   */
+  function evaluateCut(stage, K, requireFar) {
+    const removed = new Set(stage.removed);
+    const bars = makeBars(stage.N, stage.R).filter((b) => !removed.has(b.idx));
+    const adj = spokeBars(bars, stage.start, stage.N).map((b) => b.idx);
+    if (adj.length <= K) return null;
+    const initial = trace(stage, new Set()).crossings;
+    const sol = solve(stage, K);
+    if (sol.target >= initial) return null;
+    if (sol.minCut < 2) return null;
+    const adjSet = new Set(adj);
+    if (requireFar && sol.all.some((s) => s.every((i) => adjSet.has(i)))) return null;
+    return { initial, sol };
+  }
+
+  /** エンドレスチャレンジ用: 削除型の問題をランダム生成 */
+  function cutPuzzle(N, R, rnd) {
+    rnd = rnd || Math.random;
+    const total = N * R;
+    const K = cutLimit(N, R);
+    const rate = 0.15 + 0.1 * Math.min(1, total / 160);
+    for (let t = 0; t < 5000; t++) {
+      const idxs = [...Array(total).keys()];
+      for (let i = idxs.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [idxs[i], idxs[j]] = [idxs[j], idxs[i]]; }
+      const stage = { N, R, start: Math.floor(rnd() * N), removed: idxs.slice(0, Math.round(total * rate)).sort((a, b) => a - b) };
+      const ev = evaluateCut(stage, K, total > 18);
+      if (ev) return Object.assign(stage, { limit: K, initial: ev.initial, target: ev.sol.target, minCut: ev.sol.minCut, sample: ev.sol.sample });
+    }
+    throw new Error('問題を生成できませんでした');
+  }
+
   /**
    * スタート探しモードの問題生成
    * 横線をランダムに消した盤面のうち、ルート数が最少になるスタート地点が1つだけのものを返す。
@@ -158,7 +200,7 @@
 
   const LABELS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
-  const api = { barLevel, makeBars, spokeBars, trace, solve, judge, huntPuzzle, LABELS };
+  const api = { barLevel, makeBars, spokeBars, trace, solve, judge, cutLimit, evaluateCut, cutPuzzle, huntPuzzle, LABELS };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.AmidaCore = api;
 })(typeof self !== 'undefined' ? self : this);

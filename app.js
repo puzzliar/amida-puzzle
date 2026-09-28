@@ -17,6 +17,11 @@
     if (store.get('sap_tut_hunt', false)) show('huntSelect');
     else Tutorial.run('hunt', () => { store.set('sap_tut_hunt', true); show('huntSelect'); });
   });
+  $('#goEndless').addEventListener('click', () => {
+    if (store.get('sap_tut_endless', false)) show('endlessSelect');
+    else Tutorial.run('endless', () => { store.set('sap_tut_endless', true); show('endlessSelect'); });
+  });
+  $('#tutEndlessAgain').addEventListener('click', () => Tutorial.run('endless', () => show('howto')));
   $('#tutCutAgain').addEventListener('click', () => Tutorial.run('cut', () => show('howto')));
   $('#tutHuntAgain').addEventListener('click', () => Tutorial.run('hunt', () => show('howto')));
 
@@ -190,7 +195,7 @@
       <div class="row"><button class="btn" id="rRankBtn">ランキング</button><button class="btn" id="rShare">シェア</button></div>
       <div class="row"><button class="btn" id="rRetry">もう一度</button><button class="btn" id="rSel">ステージ選択</button></div>`, {
       rNext: () => { closeModal('resultModal'); startStage(i + 1); },
-      rRankBtn: () => UI.openRanking({ stageId: rid(st), title: `RANKING ${st.id}`, unit: '本', star: (r) => r.score === st.minCut }),
+      rRankBtn: () => UI.openRanking({ stageId: rid(st), title: `RANKING ${st.id}`, unit: '本', metric: '本数', sortText: '消した本数が少ない順 → 同数はタイム順', star: (r) => r.score === st.minCut }),
       rShare: () => UI.share(`削減アミダクジ PUZZLE【削除モード】STAGE ${st.id} ${res.perfect ? 'PERFECT' : 'CLEAR'}！\n消した横線 ${res.cuts}本／${fmt(time)}秒`),
       rRetry: () => { closeModal('resultModal'); startStage(i); },
       rSel: () => { closeModal('resultModal'); show('select'); },

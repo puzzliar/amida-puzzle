@@ -130,7 +130,7 @@
       <div class="row"><button class="btn" id="rRankBtn">ランキング</button><button class="btn" id="rShare">シェア</button></div>
       <div class="row"><button class="btn" id="rRetry">もう一度</button><button class="btn" id="rSel">ステージ選択</button></div>`, {
       rNext: () => { closeModal('resultModal'); start(k + 1); },
-      rRankBtn: () => UI.openRanking({ stageId: rid(hs), title: `RANKING STAGE ${hs.no}`, unit: '回', star: (r) => r.score === 0 }),
+      rRankBtn: () => UI.openRanking({ stageId: rid(hs), title: `RANKING STAGE ${hs.no}`, unit: '回', metric: '失敗', sortText: '失敗回数が少ない順 → 同数はタイム順', star: (r) => r.score === 0 }),
       rShare: () => UI.share(`削減アミダクジ PUZZLE【スタート探しモード】STAGE ${hs.no} ${cur.misses === 0 ? 'PERFECT' : 'CLEAR'}！\n失敗 ${cur.misses}回／${fmt(time)}秒`),
       rRetry: () => { closeModal('resultModal'); start(k); },
       rSel: () => { closeModal('resultModal'); show('huntSelect'); },

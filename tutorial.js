@@ -67,6 +67,20 @@ const Tutorial = (() => {
     ];
   }
 
+  function endlessSteps() {
+    const pz = AmidaCore.cutPuzzle(8, 4);
+    const cut = new Set(pz.sample);
+    const tr = AmidaCore.trace(pz, cut);
+    return [
+      { text: '「エンドレスチャレンジ」は削除モードと同じルールで、<b>ランダムに作られる問題に失敗するまで挑戦し続ける</b>モードです。<br>まず<b>放射線の数×横線の数</b>で盤面の大きさを選びます。',
+        draw: () => Board.draw(svg, pz, { start: pz.start }) },
+      { text: `スタート地点 <b class="gold">${LABELS[pz.start]}</b> からのルート数が最短になるよう横線を消して提出。正解すると<b>次の面</b>が現れます。<br>1面の制限時間は<b>2分</b>。<b class="red">間違ったルートで提出するか、時間切れで即終了</b>です。`,
+        draw: () => Board.draw(svg, pz, { start: pz.start, cut, route: { start: pz.start, trace: tr } }) },
+      { text: '盤面の大きさごとにランキングがあります。<br>①<b>クリアした面の数が多い</b> ②同じ面数なら<b>かかった合計タイムが短い</b> 順。<br>どこまで続けられるか、挑戦しましょう！',
+        draw: () => Board.draw(svg, pz, { start: pz.start, cut }) },
+    ];
+  }
+
   function go(n) {
     i = n;
     if (i >= steps.length) { const cb = onDone; onDone = null; cb && cb(); return; }
@@ -84,9 +98,9 @@ const Tutorial = (() => {
   $('#tutSkip').addEventListener('click', () => go(steps.length));
 
   function run(kind, done) {
-    steps = kind === 'cut' ? cutSteps() : huntSteps();
+    steps = kind === 'cut' ? cutSteps() : kind === 'hunt' ? huntSteps() : endlessSteps();
     onDone = done;
-    $('#tutTitle').textContent = kind === 'cut' ? 'チュートリアル：削除モード' : 'チュートリアル：スタート探し';
+    $('#tutTitle').textContent = 'チュートリアル：' + { cut: '削除モード', hunt: 'スタート探し', endless: 'エンドレス' }[kind];
     show('tutorial');
     go(0);
   }

@@ -39,12 +39,6 @@ function mulberry32(a) {
   };
 }
 
-function adjacentAlive(stage) {
-  const removed = new Set(stage.removed);
-  const bars = Core.makeBars(stage.N, stage.R).filter((b) => !removed.has(b.idx));
-  return Core.spokeBars(bars, stage.start, stage.N).map((b) => b.idx);
-}
-
 // 総当たりでソルバーを検証（小さい盤面のみ）
 function bruteForce(stage, K) {
   const removed = new Set(stage.removed);
@@ -64,16 +58,10 @@ function bruteForce(stage, K) {
 }
 
 function evaluate(cand, cfg) {
-  const K = cfg.limit;
-  const adj = adjacentAlive(cand);
-  if (adj.length <= K) return null; // 単純ケース除外
-  const initial = Core.trace(cand, new Set()).crossings;
-  const sol = Core.solve(cand, K);
-  if (sol.target >= initial) return null; // 消しても短くならない
-  if (sol.minCut < 2) return null;
-  const adjSet = new Set(adj);
-  const allNearStart = sol.all.some((s) => s.every((i) => adjSet.has(i)));
-  if (cfg.level >= 2 && allNearStart) return null; // スタート周辺を消すだけで解ける
+  // 除外条件は amida-core.js の evaluateCut（エンドレスチャレンジと共通）
+  const ev = Core.evaluateCut(cand, cfg.limit, cfg.level >= 2);
+  if (!ev) return null;
+  const { initial, sol } = ev;
   // 難しさスコア: 短縮幅・必要本数・解の少なさ
   const score = (initial - sol.target) * 2 + sol.minCut * 3 - Math.min(sol.solutions, 6) * 1.5 + (sol.solutions === 1 ? 3 : 0);
   return { initial, sol, score };

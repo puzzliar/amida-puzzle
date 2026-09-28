@@ -82,7 +82,8 @@ b.gold,.gold{color:var(--gold)} b.red,.red{color:var(--red)}
 
 /* ゲーム */
 #game,#hunt{padding-left:8px;padding-right:8px;height:100dvh}
-#select,#howto,#huntSelect,#tutorial{height:100dvh}
+#select,#howto,#huntSelect,#tutorial,#endlessSelect{height:100dvh}
+#endless{padding-left:8px;padding-right:8px;height:100dvh}
 .hud{display:flex;align-items:center;gap:8px;padding:0 4px}
 .hud .stage-name{font-family:var(--serif);font-size:18px;letter-spacing:.08em;flex:1;min-width:0}
 .hud .stage-name small{display:block;font-family:var(--sans);font-size:10px;color:var(--text1);letter-spacing:.05em}
@@ -133,6 +134,19 @@ b.gold,.gold{color:var(--gold)} b.red,.red{color:var(--red)}
 .pick.right circle{fill:var(--gold)} .pick.right .label{fill:#1a1004}
 .route{fill:none;stroke:var(--gold);stroke-width:5;stroke-linecap:round;stroke-linejoin:round;filter:url(#glow)}
 .route.miss{stroke:var(--purple)}
+
+/* エンドレス */
+.btn.endless{border-color:var(--red);color:var(--text0);background:linear-gradient(180deg,#3a1414,#1e0c0c);font-weight:700}
+.chips{display:grid;grid-template-columns:repeat(8,1fr);gap:6px}
+#enN.chips{grid-template-columns:repeat(6,1fr)}
+.chip{padding:10px 0;border:1px solid var(--border2);border-radius:8px;background:var(--bg2);font-size:15px;font-weight:600;font-variant-numeric:tabular-nums}
+.chip.on{background:var(--gold);border-color:var(--gold);color:#1a1004}
+.en-preview{width:min(62%,240px);aspect-ratio:1;display:block;margin:4px auto}
+.en-info{text-align:center;font-size:13px;color:var(--text1);line-height:1.8;margin:6px 0 12px}
+.en-info b{color:var(--text0)}
+#endlessSelect .scroll{padding-bottom:12px}
+.timer.warn{color:var(--red)}
+.cd-msg{font-size:44px;letter-spacing:.12em}
 
 /* チュートリアル */
 .tut-board{width:min(100%,46dvh);aspect-ratio:1;margin:0 auto;display:block}
@@ -198,6 +212,7 @@ input[type=text]{width:100%;padding:14px;border-radius:10px;border:1px solid var
   <div class="title-menu">
     <button class="btn primary" id="goCut">削除モード<span class="desc">横線を消して最短ルートをつくる</span></button>
     <button class="btn primary" id="goHunt">スタート探しモード<span class="desc">最短ルートになるスタート地点を見抜く</span></button>
+    <button class="btn endless" id="goEndless">エンドレスチャレンジ<span class="desc">失敗するまで何面クリアできるか</span></button>
     <div class="row">
       <button class="btn" data-go="howto">遊び方</button>
       <button class="btn" id="btnName">名前：<span id="nameLabel">未設定</span></button>
@@ -258,6 +273,40 @@ input[type=text]{width:100%;padding:14px;border-radius:10px;border:1px solid var
   <div class="feedback" id="huntFeedback"></div>
 </section>
 
+<!-- エンドレスチャレンジ: サイズ選択 -->
+<section class="screen" id="endlessSelect">
+  <div class="topbar"><button class="back" data-go="title">‹</button><h2>エンドレス</h2></div>
+  <div class="scroll">
+    <div class="level"><div class="level-head"><b>放射線</b><span>本数</span></div><div class="chips" id="enN"></div></div>
+    <div class="level"><div class="level-head"><b>横線</b><span>段数（隣り合う放射線の間ごと）</span></div><div class="chips" id="enR"></div></div>
+    <svg class="en-preview" id="enPreview" viewBox="-215 -215 430 430"></svg>
+    <p class="en-info" id="enInfo"></p>
+    <button class="btn primary" id="enStart">チャレンジ開始</button>
+    <button class="btn" id="enRank" style="margin-top:8px">このサイズのランキング</button>
+  </div>
+</section>
+
+<!-- エンドレスチャレンジ: ゲーム -->
+<section class="screen" id="endless">
+  <div class="hud">
+    <button class="back" id="enQuit">‹</button>
+    <div class="stage-name" id="enName"></div>
+    <button class="btn small" id="enZoom">拡大</button>
+    <div class="timer" id="enTimer">2:00.0</div>
+  </div>
+  <div class="mission" id="enMission"></div>
+  <div class="board-wrap" id="enWrap">
+    <svg class="board" id="enBoard" viewBox="-215 -215 430 430"></svg>
+    <div class="countdown hidden" id="enCountdown"></div>
+  </div>
+  <div class="counter" id="enPips"></div>
+  <div class="counter-label" id="enLabel"></div>
+  <div class="controls">
+    <button class="btn" id="enReset">リセット</button>
+    <button class="btn primary grow" id="enSubmit">この回答で提出</button>
+  </div>
+</section>
+
 <!-- チュートリアル -->
 <section class="screen" id="tutorial">
   <div class="topbar"><h2 id="tutTitle">チュートリアル</h2><button class="btn small" id="tutSkip">スキップ</button></div>
@@ -299,6 +348,16 @@ input[type=text]{width:100%;padding:14px;border-radius:10px;border:1px solid var
     <ol><li><b>失敗回数が少ない方が上位</b></li><li>同じ回数なら<b>タイムが短い方が上位</b></li></ol>
     <button class="btn" id="tutHuntAgain">スタート探しのチュートリアルを見る</button>
 
+    <h3>エンドレスチャレンジ</h3>
+    <ul>
+      <li><b>放射線の数×横線の数</b>で盤面の大きさを選び、ランダムに作られる問題（削除モードと同じルール）に失敗するまで挑戦し続けます。</li>
+      <li>1面の制限時間は<b>2分</b>。正解すると次の面が現れます。</li>
+      <li><b class="red">間違ったルートで提出するか、時間切れで即終了</b>です。</li>
+    </ul>
+    <h4>ランキング（盤面の大きさごと）</h4>
+    <ol><li><b>クリアした面の数が多い方が上位</b></li><li>同じ面数なら<b>クリアした面の合計タイムが短い方が上位</b></li></ol>
+    <button class="btn" id="tutEndlessAgain">エンドレスのチュートリアルを見る</button>
+
     <p class="note">本家「削減アミダクジ」は、プレイヤーが交渉しながら横線を消し合い、中央までのルート数が最も少ない「最終生存者」を目指すリアル交渉ゲームです。</p>
     <div style="height:24px"></div>
   </div>
@@ -326,6 +385,7 @@ input[type=text]{width:100%;padding:14px;border-radius:10px;border:1px solid var
 <script src="ui.js"></script>
 <script src="tutorial.js"></script>
 <script src="hunt.js"></script>
+<script src="endless.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

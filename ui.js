@@ -160,14 +160,18 @@ const UI = (() => {
     document.getElementById('rName').onclick = () => askName(run);
   }
 
-  async function openRanking({ stageId, title, unit, star }) {
+  /**
+   * ランキング表示
+   * metric: 列見出し（本数／失敗／クリア） sortText: 並び順の説明
+   */
+  async function openRanking({ stageId, title, unit, metric, sortText, star }) {
     const sheet = $('#rankSheet');
-    sheet.innerHTML = `<h3 class="serif" style="font-size:22px">${esc(title)}</h3><p class="sub">${unit === '回' ? '失敗回数' : '消した本数'}が少ない順 → 同数はタイム順<br>${Ranking.online ? '全国ランキング（公式記録）' : 'この端末内のランキング（公式記録）'}</p><div id="rankBody"><p class="muted">読み込み中…</p></div>`;
+    sheet.innerHTML = `<h3 class="serif" style="font-size:22px">${esc(title)}</h3><p class="sub">${sortText}<br>${Ranking.online ? '全国ランキング（公式記録）' : 'この端末内のランキング（公式記録）'}</p><div id="rankBody"><p class="muted">読み込み中…</p></div>`;
     openModal('rankModal');
     try {
       const rows = await Ranking.top(stageId, 20);
       const me = Ranking.playerId();
-      let h = '<table class="rank-table"><tr><th>#</th><th>名前</th><th>' + (unit === '回' ? '失敗' : '本数') + '</th><th>タイム</th></tr>';
+      let h = `<table class="rank-table"><tr><th>#</th><th>名前</th><th>${metric}</th><th>タイム</th></tr>`;
       rows.forEach((r, k) => {
         h += `<tr class="${r.player_id === me ? 'me' : ''}"><td class="r">${k + 1}</td><td class="n">${esc(r.player_name)}</td><td>${r.score}${unit}${star && star(r) ? ' ★' : ''}</td><td>${fmt(r.time_ms)}s</td></tr>`;
       });
