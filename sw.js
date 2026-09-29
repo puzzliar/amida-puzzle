@@ -1,6 +1,6 @@
 /* オフライン対応（アプリ本体をキャッシュ。ランキング通信はキャッシュしない） */
-const CACHE = 'sap-v3';
-const ASSETS = ['./', 'index.html', 'app.js', 'hunt.js', 'endless.js', 'tutorial.js', 'ui.js', 'board.js', 'amida-core.js', 'stages.js', 'ranking.js', 'config.js', 'manifest.webmanifest', 'icon.svg'];
+const CACHE = 'sap-v4';
+const ASSETS = ['./', 'index.html', 'i18n.js', 'app.js', 'hunt.js', 'endless.js', 'tutorial.js', 'ui.js', 'board.js', 'amida-core.js', 'stages.js', 'ranking.js', 'config.js', 'manifest.webmanifest', 'icon.svg'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)).then(() => self.skipWaiting()));

@@ -56,6 +56,11 @@ b.gold,.gold{color:var(--gold)} b.red,.red{color:var(--red)}
 .credit{font-size:11px;color:var(--text2);letter-spacing:.1em;line-height:1.8}
 .credit a{color:var(--text1)}
 
+.lang-switch{align-self:flex-end;margin-bottom:-8px;display:flex;border:1px solid var(--border2);border-radius:18px;overflow:hidden;font-size:12px}
+.lang-switch button{padding:6px 12px;color:var(--text1)}
+.lang-switch button.on{background:var(--gold);color:#1a1004;font-weight:700}
+:root:lang(en) .logo{font-size:clamp(28px,9.5vw,44px);letter-spacing:.08em}
+
 /* ヘッダー */
 .topbar{display:flex;align-items:center;gap:8px;margin-bottom:14px}
 .topbar h2{flex:1;font-family:var(--serif);font-size:20px;letter-spacing:.1em}
@@ -204,27 +209,30 @@ input[type=text]{width:100%;padding:14px;border-radius:10px;border:1px solid var
 
 <!-- タイトル -->
 <section class="screen active" id="title">
+  <div class="lang-switch" role="group" aria-label="Language">
+    <button data-lang="ja">日本語</button><button data-lang="en">English</button>
+  </div>
   <div>
     <div class="logo-kicker">REAL NEGOTIATION GAME</div>
-    <h1 class="logo">削減<br>アミダクジ<small>PUZZLE</small></h1>
+    <h1 class="logo" data-i18n="logo"></h1>
   </div>
   <svg class="title-svg" id="titleArt" viewBox="-210 -210 420 420" aria-hidden="true"></svg>
   <div class="title-menu">
-    <button class="btn primary" id="goCut">削除モード<span class="desc">横線を消して最短ルートをつくる</span></button>
-    <button class="btn primary" id="goHunt">スタート探しモード<span class="desc">最短ルートになるスタート地点を見抜く</span></button>
-    <button class="btn endless" id="goEndless">エンドレスチャレンジ<span class="desc">失敗するまで何面クリアできるか</span></button>
+    <button class="btn primary" id="goCut" data-i18n="goCut"></button>
+    <button class="btn primary" id="goHunt" data-i18n="goHunt"></button>
+    <button class="btn endless" id="goEndless" data-i18n="goEndless"></button>
     <div class="row">
-      <button class="btn" data-go="howto">遊び方</button>
-      <button class="btn" id="btnName">名前：<span id="nameLabel">未設定</span></button>
+      <button class="btn" data-go="howto" data-i18n="howtoBtn"></button>
+      <button class="btn" id="btnName"><span data-i18n="nameLbl"></span><span id="nameLabel"></span></button>
     </div>
   </div>
-  <p class="credit serif">原作：ラダ ／ 監修：dai<br><a id="eventLink" target="_blank" rel="noopener">リアル開催「削減アミダクジ」はこちら ›</a></p>
+  <p class="credit serif"><span data-i18n="credit"></span><br><a id="eventLink" target="_blank" rel="noopener" data-i18n="eventLink"></a></p>
 </section>
 
 <!-- 削除モード: ステージ選択 -->
 <section class="screen" id="select">
-  <div class="topbar"><button class="back" data-go="title">‹</button><h2>削除モード</h2><span class="muted" id="clearCount"></span></div>
-  <div class="life-bar"><span>ライフ（ミスで−1・30分で1回復）</span><span class="life-view"></span></div>
+  <div class="topbar"><button class="back" data-go="title">‹</button><h2 data-i18n="cutTitle"></h2><span class="muted" id="clearCount"></span></div>
+  <div class="life-bar"><span data-i18n="lifeBar"></span><span class="life-view"></span></div>
   <div class="scroll" id="levelList"></div>
 </section>
 
@@ -234,7 +242,7 @@ input[type=text]{width:100%;padding:14px;border-radius:10px;border:1px solid var
     <button class="back" id="quit">‹</button>
     <div class="stage-name" id="stageName"></div>
     <span class="life-view"></span>
-    <button class="btn small" id="zoomBtn">拡大</button>
+    <button class="btn small" id="zoomBtn"></button>
   </div>
   <div class="mission" id="mission"></div>
   <div class="board-wrap" id="boardWrap">
@@ -244,15 +252,15 @@ input[type=text]{width:100%;padding:14px;border-radius:10px;border:1px solid var
   <div class="counter" id="pips"></div>
   <div class="counter-label" id="counterLabel"></div>
   <div class="controls">
-    <button class="btn" id="resetBtn">リセット</button>
+    <button class="btn" id="resetBtn" data-i18n="reset"></button>
     <div class="timer" id="timer">0.00</div>
-    <button class="btn primary grow" id="submitBtn">この回答で提出</button>
+    <button class="btn primary grow" id="submitBtn"></button>
   </div>
 </section>
 
 <!-- スタート探しモード: ステージ選択 -->
 <section class="screen" id="huntSelect">
-  <div class="topbar"><button class="back" data-go="title">‹</button><h2>スタート探し</h2><span class="muted" id="huntClearCount"></span></div>
+  <div class="topbar"><button class="back" data-go="title">‹</button><h2 data-i18n="huntTitle"></h2><span class="muted" id="huntClearCount"></span></div>
   <div class="scroll" id="huntList"></div>
 </section>
 
@@ -261,11 +269,11 @@ input[type=text]{width:100%;padding:14px;border-radius:10px;border:1px solid var
   <div class="hud">
     <button class="back" id="huntQuit">‹</button>
     <div class="stage-name" id="huntName"></div>
-    <button class="btn small" id="huntZoom">拡大</button>
+    <button class="btn small" id="huntZoom"></button>
     <div class="timer" id="huntTimer">0.00</div>
   </div>
   <div class="hunt-status"><div class="qdots" id="huntProgress"></div><div id="huntMisses"></div></div>
-  <p class="hunt-hint">ルート数が<b class="gold">最も少ない</b>スタート地点をタップ</p>
+  <p class="hunt-hint" data-i18n="huntHint"></p>
   <div class="board-wrap" id="huntWrap">
     <svg class="board" id="huntBoard" viewBox="-215 -215 430 430"></svg>
     <div class="countdown hidden" id="huntCountdown"></div>
@@ -275,14 +283,14 @@ input[type=text]{width:100%;padding:14px;border-radius:10px;border:1px solid var
 
 <!-- エンドレスチャレンジ: サイズ選択 -->
 <section class="screen" id="endlessSelect">
-  <div class="topbar"><button class="back" data-go="title">‹</button><h2>エンドレス</h2></div>
+  <div class="topbar"><button class="back" data-go="title">‹</button><h2 data-i18n="endlessTitle"></h2></div>
   <div class="scroll">
-    <div class="level"><div class="level-head"><b>放射線</b><span>本数</span></div><div class="chips" id="enN"></div></div>
-    <div class="level"><div class="level-head"><b>横線</b><span>段数（隣り合う放射線の間ごと）</span></div><div class="chips" id="enR"></div></div>
+    <div class="level"><div class="level-head"><b data-i18n="spokes"></b><span data-i18n="spokesSub"></span></div><div class="chips" id="enN"></div></div>
+    <div class="level"><div class="level-head"><b data-i18n="rungs"></b><span data-i18n="rungsSub"></span></div><div class="chips" id="enR"></div></div>
     <svg class="en-preview" id="enPreview" viewBox="-215 -215 430 430"></svg>
     <p class="en-info" id="enInfo"></p>
-    <button class="btn primary" id="enStart">チャレンジ開始</button>
-    <button class="btn" id="enRank" style="margin-top:8px">このサイズのランキング</button>
+    <button class="btn primary" id="enStart" data-i18n="enStart"></button>
+    <button class="btn" id="enRank" style="margin-top:8px" data-i18n="enRank"></button>
   </div>
 </section>
 
@@ -291,7 +299,7 @@ input[type=text]{width:100%;padding:14px;border-radius:10px;border:1px solid var
   <div class="hud">
     <button class="back" id="enQuit">‹</button>
     <div class="stage-name" id="enName"></div>
-    <button class="btn small" id="enZoom">拡大</button>
+    <button class="btn small" id="enZoom"></button>
     <div class="timer" id="enTimer">2:00.0</div>
   </div>
   <div class="mission" id="enMission"></div>
@@ -302,63 +310,32 @@ input[type=text]{width:100%;padding:14px;border-radius:10px;border:1px solid var
   <div class="counter" id="enPips"></div>
   <div class="counter-label" id="enLabel"></div>
   <div class="controls">
-    <button class="btn" id="enReset">リセット</button>
-    <button class="btn primary grow" id="enSubmit">この回答で提出</button>
+    <button class="btn" id="enReset" data-i18n="reset"></button>
+    <button class="btn primary grow" id="enSubmit"></button>
   </div>
 </section>
 
 <!-- チュートリアル -->
 <section class="screen" id="tutorial">
-  <div class="topbar"><h2 id="tutTitle">チュートリアル</h2><button class="btn small" id="tutSkip">スキップ</button></div>
+  <div class="topbar"><h2 id="tutTitle"></h2><button class="btn small" id="tutSkip" data-i18n="tutSkip"></button></div>
   <svg class="tut-board" id="tutBoard" viewBox="-215 -215 430 430"></svg>
   <div class="tut-dots" id="tutDots"></div>
   <div class="tut-card" id="tutText"></div>
-  <div class="controls"><button class="btn primary" id="tutNext">次へ</button></div>
+  <div class="controls"><button class="btn primary" id="tutNext"></button></div>
 </section>
 
 <!-- 遊び方 -->
 <section class="screen" id="howto">
-  <div class="topbar"><button class="back" data-go="title">‹</button><h2>遊び方</h2></div>
+  <div class="topbar"><button class="back" data-go="title">‹</button><h2 data-i18n="howtoTitle"></h2></div>
   <div class="scroll howto">
-    <p>中央から放射状にのびる線（放射線）と、隣どうしを結ぶ<b class="red">赤い横線</b>でできたアミダクジです。スタート地点から中央に向かって進み、横線にぶつかったら必ず渡って隣の放射線へ移ります。中央に着くまでに<b>横線を渡った回数＝ルート数</b>です。</p>
-
-    <h3>削除モード</h3>
-    <ul>
-      <li>横線をタップして消し、<b class="gold">金色のスタート地点</b>からのルート数を<b>最短</b>にします。</li>
-      <li>ステージごとに<b>消せる本数の上限</b>があります。点線の横線ははじめから消えています。</li>
-      <li>上限内でたどり着ける最短ルートにできたら <b class="gold">CLEAR</b>。必要最少本数なら <b class="gold">PERFECT</b>。</li>
-    </ul>
-    <h4>ライフ</h4>
-    <p>はじめは<b>10</b>。不正解で1減り、0になると遊べません。<b>30分ごとに1回復</b>します。不正解でも「続ける」で再挑戦できます（選んだ横線はリセット・タイマーは継続）。</p>
-    <h4>ランキング</h4>
-    <ol><li><b>消した横線が少ない方が上位</b></li><li>同じ本数なら<b>タイムが短い方が上位</b></li></ol>
-    <p class="note">各ステージ<b>初回の挑戦の記録だけが公式記録</b>です。2回目以降の挑戦（ギブアップ後やクリア後の再挑戦）の記録は<b>参考記録</b>になり、順位には入りません。</p>
-    <h4>レベル</h4>
-    <p>Lv.1〜10（各5ステージ）。放射線は6本から2本ずつ増えてLv.6で16本、横線は3段から増えてLv.10で10段。ステージをクリアすると次のステージに挑戦できます。</p>
-    <button class="btn" id="tutCutAgain">削除モードのチュートリアルを見る</button>
-
-    <h3>スタート探しモード</h3>
-    <ul>
-      <li>横線がランダムに消えたアミダクジから、<b>ルート数が最も少なくなるスタート地点</b>を外周の記号をタップして選びます。</li>
-      <li>1ステージ<b>5問</b>。正解すると次の問題へ。5問すべて正解するまでのタイムを記録します。</li>
-      <li>間違えると<b class="red">タイム+30秒</b>、失敗回数+1。</li>
-      <li>問題は挑戦のたびに変わります。</li>
-    </ul>
-    <h4>ランキング</h4>
-    <ol><li><b>失敗回数が少ない方が上位</b></li><li>同じ回数なら<b>タイムが短い方が上位</b></li></ol>
-    <button class="btn" id="tutHuntAgain">スタート探しのチュートリアルを見る</button>
-
-    <h3>エンドレスチャレンジ</h3>
-    <ul>
-      <li><b>放射線の数×横線の数</b>で盤面の大きさを選び、ランダムに作られる問題（削除モードと同じルール）に失敗するまで挑戦し続けます。</li>
-      <li>1面の制限時間は<b>2分</b>。正解すると次の面が現れます。</li>
-      <li><b class="red">間違ったルートで提出するか、時間切れで即終了</b>です。</li>
-    </ul>
-    <h4>ランキング（盤面の大きさごと）</h4>
-    <ol><li><b>クリアした面の数が多い方が上位</b></li><li>同じ面数なら<b>クリアした面の合計タイムが短い方が上位</b></li></ol>
-    <button class="btn" id="tutEndlessAgain">エンドレスのチュートリアルを見る</button>
-
-    <p class="note">本家「削減アミダクジ」は、プレイヤーが交渉しながら横線を消し合い、中央までのルート数が最も少ない「最終生存者」を目指すリアル交渉ゲームです。</p>
+    <div data-i18n="howtoIntro"></div>
+    <div data-i18n="howtoCut"></div>
+    <button class="btn" id="tutCutAgain" data-i18n="tutCutAgain"></button>
+    <div data-i18n="howtoHunt"></div>
+    <button class="btn" id="tutHuntAgain" data-i18n="tutHuntAgain"></button>
+    <div data-i18n="howtoEndless"></div>
+    <button class="btn" id="tutEndlessAgain" data-i18n="tutEndlessAgain"></button>
+    <div data-i18n="howtoNote"></div>
     <div style="height:24px"></div>
   </div>
 </section>
@@ -369,15 +346,16 @@ input[type=text]{width:100%;padding:14px;border-radius:10px;border:1px solid var
 <div class="modal" id="rankModal"><div class="sheet" id="rankSheet"></div></div>
 <!-- 名前 -->
 <div class="modal" id="nameModal"><div class="sheet">
-  <h3 class="serif" style="font-size:22px">プレイヤー名</h3>
-  <p class="sub">ランキングに表示される名前（12文字まで）</p>
-  <input type="text" id="nameInput" maxlength="12" placeholder="ニックネーム" autocomplete="nickname">
-  <button class="btn primary" id="nameSave">決定</button>
-  <button class="btn" id="nameCancel">キャンセル</button>
+  <h3 class="serif" style="font-size:22px" data-i18n="nameTitle"></h3>
+  <p class="sub" data-i18n="nameSub"></p>
+  <input type="text" id="nameInput" maxlength="12" data-i18n-ph="namePh" autocomplete="nickname">
+  <button class="btn primary" id="nameSave" data-i18n="nameOk"></button>
+  <button class="btn" id="nameCancel" data-i18n="cancel"></button>
 </div></div>
 <div class="toast" id="toast"></div>
 
 <script src="config.js"></script>
+<script src="i18n.js"></script>
 <script src="amida-core.js"></script>
 <script src="stages.js"></script>
 <script src="ranking.js"></script>

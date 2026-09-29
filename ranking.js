@@ -51,7 +51,7 @@ const Ranking = (() => {
     saveMine(stageId, row);
     if (online) {
       const r = await fetch(api('puzzle_scores'), { method: 'POST', headers: headers({ Prefer: 'return=minimal' }), body: JSON.stringify(row) });
-      if (!r.ok) throw new Error('ランキング送信に失敗しました（' + r.status + '）');
+      if (!r.ok) throw new Error(I18N.t('rankSendFail', r.status));
       return;
     }
     if (!row.official) return; // 端末内ランキングは公式記録のみ
@@ -70,7 +70,7 @@ const Ranking = (() => {
     if (online) {
       const q = `puzzle_best?stage_id=eq.${encodeURIComponent(stageId)}&order=score.${isDesc(stageId) ? 'desc' : 'asc'},time_ms.asc,created_at.asc&limit=${limit}`;
       const r = await fetch(api(q), { headers: headers() });
-      if (!r.ok) throw new Error('ランキング取得に失敗しました（' + r.status + '）');
+      if (!r.ok) throw new Error(I18N.t('rankGetFail', r.status));
       return r.json();
     }
     return (load(LS_KEY)[stageId] || []).slice().sort(betterFor(stageId)).slice(0, limit);

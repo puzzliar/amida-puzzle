@@ -3,6 +3,7 @@ const Tutorial = (() => {
   'use strict';
   const { $, show, toast } = UI;
   const { LABELS } = Board;
+  const { t } = I18N;
   const svg = $('#tutBoard');
   let steps = [], i = 0, onDone = null, onTap = null;
 
@@ -20,21 +21,21 @@ const Tutorial = (() => {
     const after = AmidaCore.trace(st, cut);
     const A = LABELS[st.start];
     return [
-      { text: '中央から放射状にのびる<b>放射線</b>と、隣どうしをつなぐ<b class="red">赤い横線</b>。これが「削減アミダクジ」の盤面です。',
+      { text: t('tutCut1'),
         draw: () => Board.draw(svg, st, { start: st.start }) },
-      { text: `<b class="gold">金色のスタート地点 ${A}</b> から中央へ進みます。横線にぶつかったら、必ず渡って隣の放射線へ。<br>中央に着くまでに横線を渡った回数が<b>ルート数</b>。いまは <b>${base.crossings}</b> です。`,
+      { text: t('tutCut2', A, base.crossings),
         draw: () => Board.draw(svg, st, { start: st.start, route: { start: st.start, trace: base } }) },
-      { text: '横線はタップすると消せます（もう一度タップで元に戻ります）。<br><b class="gold">光っている横線</b>をタップしてみましょう。',
+      { text: t('tutCut3'),
         draw: () => Board.draw(svg, st, { start: st.start, pulse: best.idx }),
         tap: (e) => {
           if (Board.nearestBar(svg, st, e) === best.idx) go(i + 1);
-          else toast('光っている横線をタップしてください');
+          else toast(t('tutTapGlow'));
         } },
-      { text: `ルートが変わって、ルート数が <b>${base.crossings} → ${after.crossings}</b> に！<br>このように<b>どの横線を消せばルート数が最短になるか</b>を考えるパズルです。`,
+      { text: t('tutCut4', base.crossings, after.crossings),
         draw: () => Board.draw(svg, st, { start: st.start, cut, route: { start: st.start, trace: after } }) },
-      { text: 'ステージごとに<b>消せる本数の上限</b>があります。上限内でたどり着ける最短ルートにできたら <b class="gold">CLEAR</b>。<br>ランキングは ①<b>消した本数が少ない</b> ②<b>タイムが速い</b> 順。<br><b>各ステージ初回の挑戦だけが公式記録</b>で、2回目以降は参考記録になります。',
+      { text: t('tutCut5'),
         draw: () => Board.draw(svg, st, { start: st.start, cut }) },
-      { text: '不正解だと<b class="red">ライフが1減ります</b>（最大10）。0になると遊べませんが、<b>30分ごとに1回復</b>します。<br>さあ、挑戦しましょう！',
+      { text: t('tutCut6'),
         draw: () => Board.draw(svg, st, { start: st.start }) },
     ];
   }
@@ -44,9 +45,9 @@ const Tutorial = (() => {
     const ans = pz.answer;
     const ansTr = AmidaCore.trace(Object.assign({}, pz, { start: ans }), new Set());
     return [
-      { text: '「スタート探しモード」では、<b>横線がランダムに消えたアミダクジ</b>が出題されます。',
+      { text: t('tutHunt1'),
         draw: () => Board.draw(svg, pz, { labels: 'pick' }) },
-      { text: 'どのスタート地点から進むと<b>ルート数（横線を渡る回数）が最も少ない</b>でしょう？<br>外周の記号をタップして答えてみましょう。',
+      { text: t('tutHunt2'),
         draw: () => Board.draw(svg, pz, { labels: 'pick' }),
         tap: (e) => {
           const s = Board.nearestSpoke(svg, pz, e);
@@ -54,15 +55,15 @@ const Tutorial = (() => {
           onTap = null;
           $('#tutNext').disabled = false;
           if (s === ans) {
-            $('#tutText').innerHTML = `<b class="gold">正解！</b> ${LABELS[ans]} からのルート数は <b>${ansTr.crossings}</b>。これが最短です。`;
+            $('#tutText').innerHTML = t('tutHuntOk', LABELS[ans], ansTr.crossings);
             Board.draw(svg, pz, { labels: 'pick', right: ans, start: ans, route: { start: ans, trace: ansTr } });
           } else {
             const tr = AmidaCore.trace(Object.assign({}, pz, { start: s }), new Set());
-            $('#tutText').innerHTML = `${LABELS[s]} からだとルート数 <b>${tr.crossings}</b>。<br>正解は <b class="gold">${LABELS[ans]}</b>（ルート数 <b>${ansTr.crossings}</b>）でした。本番では<b class="red">+30秒</b>のペナルティです。`;
+            $('#tutText').innerHTML = t('tutHuntNg', LABELS[s], tr.crossings, LABELS[ans], ansTr.crossings);
             Board.draw(svg, pz, { labels: 'pick', right: ans, wrong: new Set([s]), start: ans, route: { start: ans, trace: ansTr } });
           }
         } },
-      { text: '1ステージは<b>5問</b>。5問すべて正解するまでのタイムを競います。<br>間違えると<b class="red">タイム+30秒</b>＆失敗回数+1。<br>ランキングは ①<b>失敗回数が少ない</b> ②<b>タイムが速い</b> 順。問題は挑戦のたびに変わります。',
+      { text: t('tutHunt3'),
         draw: () => Board.draw(svg, pz, { labels: 'pick', right: ans }) },
     ];
   }
@@ -72,11 +73,11 @@ const Tutorial = (() => {
     const cut = new Set(pz.sample);
     const tr = AmidaCore.trace(pz, cut);
     return [
-      { text: '「エンドレスチャレンジ」は削除モードと同じルールで、<b>ランダムに作られる問題に失敗するまで挑戦し続ける</b>モードです。<br>まず<b>放射線の数×横線の数</b>で盤面の大きさを選びます。',
+      { text: t('tutEnd1'),
         draw: () => Board.draw(svg, pz, { start: pz.start }) },
-      { text: `スタート地点 <b class="gold">${LABELS[pz.start]}</b> からのルート数が最短になるよう横線を消して提出。正解すると<b>次の面</b>が現れます。<br>1面の制限時間は<b>2分</b>。<b class="red">間違ったルートで提出するか、時間切れで即終了</b>です。`,
+      { text: t('tutEnd2', LABELS[pz.start]),
         draw: () => Board.draw(svg, pz, { start: pz.start, cut, route: { start: pz.start, trace: tr } }) },
-      { text: '盤面の大きさごとにランキングがあります。<br>①<b>クリアした面の数が多い</b> ②同じ面数なら<b>かかった合計タイムが短い</b> 順。<br>どこまで続けられるか、挑戦しましょう！',
+      { text: t('tutEnd3'),
         draw: () => Board.draw(svg, pz, { start: pz.start, cut }) },
     ];
   }
@@ -87,7 +88,7 @@ const Tutorial = (() => {
     const s = steps[i];
     $('#tutText').innerHTML = s.text;
     $('#tutDots').innerHTML = steps.map((_, k) => `<span class="${k === i ? 'on' : ''}"></span>`).join('');
-    $('#tutNext').textContent = i === steps.length - 1 ? 'はじめる' : '次へ';
+    $('#tutNext').textContent = t(i === steps.length - 1 ? 'tutStart' : 'tutNext');
     $('#tutNext').disabled = !!s.tap;
     onTap = s.tap || null;
     s.draw();
@@ -100,7 +101,7 @@ const Tutorial = (() => {
   function run(kind, done) {
     steps = kind === 'cut' ? cutSteps() : kind === 'hunt' ? huntSteps() : endlessSteps();
     onDone = done;
-    $('#tutTitle').textContent = 'チュートリアル：' + { cut: '削除モード', hunt: 'スタート探し', endless: 'エンドレス' }[kind];
+    $('#tutTitle').textContent = t('tutTitle', t('tutModes')[kind]);
     show('tutorial');
     go(0);
   }

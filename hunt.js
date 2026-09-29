@@ -3,6 +3,7 @@
   'use strict';
   const { $, store, fmt, show, onShow, closeModal, sheet, toast } = UI;
   const { LABELS } = Board;
+  const { t } = I18N;
 
   const PER_STAGE = 5;
   const PENALTY_MS = 30000;
@@ -17,11 +18,11 @@
   const isUnlocked = (k) => k === 0 || !!progress[HUNT_STAGES[k - 1].no];
 
   onShow('huntSelect', () => {
-    let h = '<div class="level"><div class="level-head"><b>STAGE</b><span>1ステージ＝5問・誤答は+30秒</span></div><div class="hunt-grid">';
+    let h = `<div class="level"><div class="level-head"><b>STAGE</b><span>${t('huntHead')}</span></div><div class="hunt-grid">`;
     HUNT_STAGES.forEach((hs, k) => {
       const p = progress[hs.no];
       const cls = !isUnlocked(k) ? 'locked' : p ? (p.misses === 0 ? 'perfect' : 'clear') : '';
-      const sub = !isUnlocked(k) ? '🔒' : p ? `失敗${p.misses} ${fmt(p.time)}s` : `放射線${hs.N}・横線${hs.R}`;
+      const sub = !isUnlocked(k) ? '🔒' : p ? t('huntSub', p.misses, fmt(p.time)) : t('sizeShort', hs.N, hs.R);
       h += `<button class="stage-btn ${cls}" data-k="${k}">${hs.no}<small>${sub}</small></button>`;
     });
     h += '</div></div>';
@@ -38,7 +39,7 @@
     Board.draw($('#huntBoard'), pz, Object.assign({ labels: 'pick', wrong: cur.wrong }, extra));
     $('#huntProgress').innerHTML = Array.from({ length: PER_STAGE }, (_, i) =>
       `<span class="qdot${i < cur.q ? ' done' : i === cur.q ? ' now' : ''}">${i + 1}</span>`).join('');
-    $('#huntMisses').innerHTML = `失敗 <b>${cur.misses}</b> 回`;
+    $('#huntMisses').innerHTML = t('missesLabel', cur.misses);
   }
 
   function start(k) {
@@ -46,10 +47,10 @@
     // 挑戦ごとにランダム生成
     const puzzles = Array.from({ length: PER_STAGE }, () => AmidaCore.huntPuzzle(hs.N, hs.R, REMOVED_RATE));
     cur = { k, hs, puzzles, q: 0, misses: 0, wrong: new Set(), busy: false, done: false };
-    $('#huntName').innerHTML = `STAGE ${hs.no}<small>放射線${hs.N}本・横線${hs.R}段</small>`;
+    $('#huntName').innerHTML = `STAGE ${hs.no}<small>${t('stageSub', hs.N, hs.R)}</small>`;
     timer.reset();
     $('#huntWrap').classList.remove('zoom');
-    $('#huntZoom').textContent = '拡大';
+    $('#huntZoom').textContent = t('zoom');
     show('hunt');
     render();
     cur.cancelCd = UI.countdown($('#huntCountdown'), () => timer.start());
@@ -69,7 +70,7 @@
     navigator.vibrate?.(ok ? 15 : [40, 40, 40]);
     if (ok) {
       render({ start: s, right: s, route: { start: s, trace: tr } });
-      $('#huntFeedback').innerHTML = `<span class="fb ok">正解！ ${LABELS[s]} のルート数 ${tr.crossings}</span>`;
+      $('#huntFeedback').innerHTML = `<span class="fb ok">${t('huntOk', LABELS[s], tr.crossings)}</span>`;
       setTimeout(() => {
         if (stale()) return;
         $('#huntFeedback').innerHTML = '';
@@ -85,7 +86,7 @@
       timer.add(PENALTY_MS);
       cur.wrong.add(s);
       render({ start: s, route: { start: s, trace: tr, cls: 'miss' } });
-      $('#huntFeedback').innerHTML = `<span class="fb ng">ハズレ　${LABELS[s]} のルート数 ${tr.crossings}　+30秒</span>`;
+      $('#huntFeedback').innerHTML = `<span class="fb ng">${t('huntNg', LABELS[s], tr.crossings)}</span>`;
       setTimeout(() => {
         if (stale()) return;
         $('#huntFeedback').innerHTML = '';
@@ -100,8 +101,8 @@
     if (!cur || !timer.running) return;
     const w = $('#huntWrap');
     const z = w.classList.toggle('zoom');
-    $('#huntZoom').textContent = z ? '縮小' : '拡大';
-    if (z) toast('外周の記号をタップして回答');
+    $('#huntZoom').textContent = t(z ? 'unzoom' : 'zoom');
+    if (z) toast(t('tapOuter'));
   });
   $('#huntQuit').addEventListener('click', () => {
     if (cur) { cur.cancelCd && cur.cancelCd(); timer.stop(); cur.done = true; }
@@ -120,18 +121,18 @@
     const k = cur.k;
     sheet(`
       <h3 class="ok serif">${cur.misses === 0 ? 'PERFECT' : 'CLEAR'}</h3>
-      <p class="sub">5問すべて正解！${prev && better(rec, prev) < 0 ? '<br>自己ベスト更新！' : ''}</p>
+      <p class="sub">${t('huntAll')}${prev && better(rec, prev) < 0 ? '<br>' + t('newBest') : ''}</p>
       <div class="stats two">
-        <div class="stat"><span>失敗回数</span><b>${cur.misses}</b><em>回</em></div>
-        <div class="stat"><span>タイム</span><b>${fmt(time)}</b><em>${cur.misses ? `うちペナルティ +${cur.misses * 30}秒` : '秒'}</em></div>
+        <div class="stat"><span>${t('statMiss')}</span><b>${cur.misses}</b><em>${t('times')}</em></div>
+        <div class="stat"><span>${t('statTime')}</span><b>${fmt(time)}</b><em>${cur.misses ? t('penalty', cur.misses * 30) : t('sec')}</em></div>
       </div>
-      <div class="rank-big" id="rRank">集計中…</div>
-      ${hasNext ? '<button class="btn primary" id="rNext">次のステージへ</button>' : ''}
-      <div class="row"><button class="btn" id="rRankBtn">ランキング</button><button class="btn" id="rShare">シェア</button></div>
-      <div class="row"><button class="btn" id="rRetry">もう一度</button><button class="btn" id="rSel">ステージ選択</button></div>`, {
+      <div class="rank-big" id="rRank">${t('tallying')}</div>
+      ${hasNext ? `<button class="btn primary" id="rNext">${t('nextStage')}</button>` : ''}
+      <div class="row"><button class="btn" id="rRankBtn">${t('ranking')}</button><button class="btn" id="rShare">${t('share')}</button></div>
+      <div class="row"><button class="btn" id="rRetry">${t('again')}</button><button class="btn" id="rSel">${t('stageSelect')}</button></div>`, {
       rNext: () => { closeModal('resultModal'); start(k + 1); },
-      rRankBtn: () => UI.openRanking({ stageId: rid(hs), title: `RANKING STAGE ${hs.no}`, unit: '回', metric: '失敗', sortText: '失敗回数が少ない順 → 同数はタイム順', star: (r) => r.score === 0 }),
-      rShare: () => UI.share(`削減アミダクジ PUZZLE【スタート探しモード】STAGE ${hs.no} ${cur.misses === 0 ? 'PERFECT' : 'CLEAR'}！\n失敗 ${cur.misses}回／${fmt(time)}秒`),
+      rRankBtn: () => UI.openRanking({ stageId: rid(hs), title: `RANKING STAGE ${hs.no}`, scoreText: (n) => t('nMiss', n), metric: t('metricMiss'), sortText: t('rankHuntSort'), star: (r) => r.score === 0 }),
+      rShare: () => UI.share(t('shareHunt', hs.no, cur.misses === 0 ? 'PERFECT' : 'CLEAR', cur.misses, fmt(time))),
       rRetry: () => { closeModal('resultModal'); start(k); },
       rSel: () => { closeModal('resultModal'); show('huntSelect'); },
     });

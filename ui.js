@@ -104,7 +104,7 @@ const UI = (() => {
     }
     function html() {
       const g = get();
-      return `<span class="heart">❤</span><b>${g.life}</b>/${MAX}` + (g.life < MAX ? `<small>回復まで ${fmtClock(g.nextMs)}</small>` : '');
+      return `<span class="heart">❤</span><b>${g.life}</b>/${MAX}` + (g.life < MAX ? `<small>${I18N.t('lifeRecover', fmtClock(g.nextMs))}</small>` : '');
     }
     return { get, lose, html, MAX };
   })();
@@ -114,7 +114,8 @@ const UI = (() => {
   // ---------- プレイヤー名 ----------
   let playerName = store.get('sap_name', '');
   let nameCb = null;
-  const refreshName = () => ($('#nameLabel').textContent = playerName || '未設定');
+  const refreshName = () => ($('#nameLabel').textContent = playerName || I18N.t('notSet'));
+  document.addEventListener('langchange', refreshName);
   function askName(cb) {
     nameCb = cb || null;
     $('#nameInput').value = playerName;
@@ -124,7 +125,7 @@ const UI = (() => {
   $('#btnName').addEventListener('click', () => askName());
   $('#nameSave').addEventListener('click', () => {
     const v = $('#nameInput').value.trim().slice(0, 12);
-    if (!v) { toast('名前を入力してください'); return; }
+    if (!v) { toast(I18N.t('enterName')); return; }
     playerName = v;
     store.set('sap_name', v);
     refreshName();
@@ -147,45 +148,44 @@ const UI = (() => {
       try {
         await Ranking.submit(stageId, playerName, score, time, official);
         const r = await Ranking.rankOf(stageId, score, time);
-        const where = Ranking.online ? '' : '<br><span class="muted">（この端末内のランキング）</span>';
-        if (el()) el().innerHTML = official
-          ? `公式記録　<b>${r}</b>位${where}`
-          : `<span class="tag ref">参考記録</span> 公式ランキングなら <b>${r}</b>位相当${where}`;
+        const where = Ranking.online ? '' : I18N.t('localNote');
+        if (el()) el().innerHTML = I18N.t(official ? 'officialRank' : 'refRank', r) + where;
       } catch (e) {
         if (el()) el().textContent = e.message;
       }
     };
     if (playerName) return run();
-    if (el()) el().innerHTML = '<button class="btn" id="rName">名前を登録してランキングに参加</button>';
+    if (el()) el().innerHTML = `<button class="btn" id="rName">${I18N.t('joinRanking')}</button>`;
     document.getElementById('rName').onclick = () => askName(run);
   }
 
   /**
    * ランキング表示
-   * metric: 列見出し（本数／失敗／クリア） sortText: 並び順の説明
+   * metric: 列見出し（本数／失敗／クリア） sortText: 並び順の説明 scoreText: 記録値の表示
    */
-  async function openRanking({ stageId, title, unit, metric, sortText, star }) {
+  async function openRanking({ stageId, title, scoreText, metric, sortText, star }) {
+    const { t } = I18N;
     const sheet = $('#rankSheet');
-    sheet.innerHTML = `<h3 class="serif" style="font-size:22px">${esc(title)}</h3><p class="sub">${sortText}<br>${Ranking.online ? '全国ランキング（公式記録）' : 'この端末内のランキング（公式記録）'}</p><div id="rankBody"><p class="muted">読み込み中…</p></div>`;
+    sheet.innerHTML = `<h3 class="serif" style="font-size:22px">${esc(title)}</h3><p class="sub">${sortText}<br>${t(Ranking.online ? 'scopeOnline' : 'scopeLocal')}</p><div id="rankBody"><p class="muted">${t('loading')}</p></div>`;
     openModal('rankModal');
     try {
       const rows = await Ranking.top(stageId, 20);
       const me = Ranking.playerId();
-      let h = `<table class="rank-table"><tr><th>#</th><th>名前</th><th>${metric}</th><th>タイム</th></tr>`;
+      let h = `<table class="rank-table"><tr><th>#</th><th>${t('colName')}</th><th>${metric}</th><th>${t('colTime')}</th></tr>`;
       rows.forEach((r, k) => {
-        h += `<tr class="${r.player_id === me ? 'me' : ''}"><td class="r">${k + 1}</td><td class="n">${esc(r.player_name)}</td><td>${r.score}${unit}${star && star(r) ? ' ★' : ''}</td><td>${fmt(r.time_ms)}s</td></tr>`;
+        h += `<tr class="${r.player_id === me ? 'me' : ''}"><td class="r">${k + 1}</td><td class="n">${esc(r.player_name)}</td><td>${scoreText(r.score)}${star && star(r) ? ' ★' : ''}</td><td>${fmt(r.time_ms)}s</td></tr>`;
       });
       h += '</table>';
-      if (!rows.length) h = '<p class="muted">まだ記録がありません</p>';
+      if (!rows.length) h = `<p class="muted">${t('noRecords')}</p>`;
       const my = Ranking.mine(stageId);
-      if (my.ref) h += `<p class="muted">あなたの参考記録（2回目以降の挑戦）：${my.ref.score}${unit}／${fmt(my.ref.time_ms)}s</p>`;
+      if (my.ref) h += `<p class="muted">${t('myRef', `${scoreText(my.ref.score)} / ${fmt(my.ref.time_ms)}s`)}</p>`;
       $('#rankBody').innerHTML = h;
     } catch (e) {
       $('#rankBody').innerHTML = `<p class="muted">${esc(e.message)}</p>`;
     }
     const close = document.createElement('button');
     close.className = 'btn';
-    close.textContent = '閉じる';
+    close.textContent = t('close');
     close.onclick = () => closeModal('rankModal');
     sheet.appendChild(close);
   }

@@ -7,6 +7,7 @@
   'use strict';
   const { $, store, fmt, show, onShow, toast, closeModal, sheet } = UI;
   const { LABELS } = Board;
+  const { t } = I18N;
 
   const LIMIT_MS = 120000;
   const NS = [6, 8, 10, 12, 14, 16];
@@ -22,15 +23,15 @@
     $('#enR').innerHTML = chips(RS, R, 'r');
     Board.draw($('#enPreview'), { N, R, removed: [] }, { labels: 'none' });
     const best = Ranking.mine(rid(N, R)).official;
-    $('#enInfo').innerHTML = `<b>放射線${N}本 × 横線${R}段</b><br>消せる横線は <b>${AmidaCore.cutLimit(N, R)}本</b> まで／1面の制限時間 <b>2分</b>` +
-      `<br>自己ベスト：${best ? `<b class="gold">${best.score}面</b>（${fmt(best.time_ms)}秒）` : 'まだ記録がありません'}`;
+    $('#enInfo').innerHTML = t('enInfo', N, R, AmidaCore.cutLimit(N, R)) +
+      `<br>${t('myBest')}${best ? t('bestVal', best.score, fmt(best.time_ms)) : t('noRecords')}`;
     $('#enN').querySelectorAll('.chip').forEach((b) => (b.onclick = () => { sel.N = +b.dataset.n; store.set('sap_endless_size', sel); renderSelect(); }));
     $('#enR').querySelectorAll('.chip').forEach((b) => (b.onclick = () => { sel.R = +b.dataset.r; store.set('sap_endless_size', sel); renderSelect(); }));
   }
   onShow('endlessSelect', renderSelect);
   const openRank = (N, R) => UI.openRanking({
-    stageId: rid(N, R), title: `ENDLESS ${N}×${R}`, unit: '面', metric: 'クリア',
-    sortText: 'クリア面数が多い順 → 同数は合計タイム順',
+    stageId: rid(N, R), title: `ENDLESS ${N}×${R}`, scoreText: (n) => t('nBoards', n), metric: t('metricClear'),
+    sortText: t('rankEndSort'),
   });
   $('#enStart').addEventListener('click', () => start());
   $('#enRank').addEventListener('click', () => openRank(sel.N, sel.R));
@@ -64,18 +65,18 @@
     const pz = run.pz;
     Board.draw($('#enBoard'), pz, Object.assign({ start: pz.start, cut: run.cut }, extra));
     $('#enPips').innerHTML = Array.from({ length: pz.limit }, (_, k) => `<span class="pip${k < run.cut.size ? ' on' : ''}"></span>`).join('');
-    $('#enLabel').innerHTML = `消した横線 <b>${run.cut.size}</b> / ${pz.limit} 本`;
+    $('#enLabel').innerHTML = t('cutCount', run.cut.size, pz.limit);
   }
   function renderHud() {
     const pz = run.pz;
-    $('#enName').innerHTML = `第${run.cleared + 1}面<small>${run.N}×${run.R}／クリア ${run.cleared}面・合計 ${fmt(run.total)}秒</small>`;
-    $('#enMission').innerHTML = `<b>${LABELS[pz.start]}</b> から中央までのルートを最短にせよ。消せる横線は <b>${pz.limit}本</b> まで。<br>誤答・時間切れで即終了。`;
+    $('#enName').innerHTML = t('enName', run.cleared + 1, run.N, run.R, run.cleared, fmt(run.total));
+    $('#enMission').innerHTML = t('mission', LABELS[pz.start], pz.limit) + t('enMissionTail');
   }
 
   function start() {
     run = { N: sel.N, R: sel.R, cleared: 0, total: 0 };
     $('#enSubmit').onclick = null;
-    $('#enSubmit').textContent = 'この回答で提出';
+    $('#enSubmit').textContent = t('submit');
     show('endless');
     nextBoard(true);
   }
@@ -83,7 +84,7 @@
   function nextBoard(first) {
     Object.assign(run, { pz: AmidaCore.cutPuzzle(run.N, run.R), cut: new Set(), elapsed: 0, running: false, done: false });
     $('#enWrap').classList.remove('zoom');
-    $('#enZoom').textContent = '拡大';
+    $('#enZoom').textContent = t('zoom');
     renderHud();
     renderBoard();
     renderTime();
@@ -91,7 +92,7 @@
     if (first) { run.cancel = UI.countdown(cd, startClock); return; }
     // 2面目以降: 盤面を伏せて「第n面」を表示してからスタート
     cd.classList.remove('hidden');
-    cd.innerHTML = `<span class="cd-msg">第${run.cleared + 1}面</span>`;
+    cd.innerHTML = `<span class="cd-msg">${t('boardN', run.cleared + 1)}</span>`;
     const r = run;
     const tid = setTimeout(() => { if (r !== run || r.done) return; cd.classList.add('hidden'); startClock(); }, 1100);
     run.cancel = () => { clearTimeout(tid); cd.classList.add('hidden'); };
@@ -103,7 +104,7 @@
     const idx = Board.nearestBar($('#enBoard'), pz, e);
     if (idx == null) return;
     if (run.cut.has(idx)) run.cut.delete(idx);
-    else if (run.cut.size >= pz.limit) { toast(`消せるのは ${pz.limit} 本までです`); navigator.vibrate?.(60); return; }
+    else if (run.cut.size >= pz.limit) { toast(t('limitToast', pz.limit)); navigator.vibrate?.(60); return; }
     else run.cut.add(idx);
     navigator.vibrate?.(12);
     renderBoard();
@@ -113,7 +114,7 @@
     if (!run || (!run.running && !run.done)) return;
     const w = $('#enWrap');
     const z = w.classList.toggle('zoom');
-    $('#enZoom').textContent = z ? '縮小' : '拡大';
+    $('#enZoom').textContent = t(z ? 'unzoom' : 'zoom');
     if (z) Board.scrollToSpoke(w, $('#enBoard'), run.pz, run.pz.start);
   });
 
@@ -128,7 +129,7 @@
     if (res.ok) {
       run.cleared++;
       run.total += run.elapsed;
-      $('#enLabel').innerHTML = `<b>CLEAR！</b> ${fmt(run.elapsed)}秒`;
+      $('#enLabel').innerHTML = t('clearTime', fmt(run.elapsed));
       setTimeout(() => { if (r === run && !r.done) nextBoard(false); }, 1400);
     } else {
       run.done = true;
@@ -149,8 +150,8 @@
     const cut = new Set(pz.sample);
     const tr = AmidaCore.trace(pz, cut);
     Board.draw($('#enBoard'), pz, { start: pz.start, cut, hint: cut, route: { start: pz.start, trace: tr } });
-    $('#enLabel').innerHTML = `解答例：緑の横線 <b>${cut.size}</b> 本を消すとルート数 <b>${tr.crossings}</b>`;
-    $('#enSubmit').textContent = '結果に戻る';
+    $('#enLabel').innerHTML = t('answerLabel', cut.size, tr.crossings);
+    $('#enSubmit').textContent = t('backToResult');
     $('#enSubmit').onclick = () => { $('#enSubmit').onclick = null; resultSheet(); };
   }
 
@@ -163,26 +164,26 @@
 
   function resultSheet() {
     const { reason, res } = last;
-    const why = reason === 'time' ? '制限時間の2分を超えました'
-      : reason === 'quit' ? 'チャレンジを終了しました'
-      : `ルート数 ${res.crossings}（最短は ${run.pz.target}）`;
+    const why = reason === 'time' ? t('whyTime')
+      : reason === 'quit' ? t('whyQuit')
+      : t('whyMiss', res.crossings, run.pz.target);
     const N = run.N, R = run.R;
     sheet(`
       <h3 class="ng serif">GAME OVER</h3>
       <p class="sub">${why}</p>
       <div class="stats two">
-        <div class="stat"><span>クリア面数</span><b>${run.cleared}</b><em>面</em></div>
-        <div class="stat"><span>合計タイム</span><b>${fmt(run.total)}</b><em>秒</em></div>
+        <div class="stat"><span>${t('statCleared')}</span><b>${run.cleared}</b><em>${t('boardsUnit')}</em></div>
+        <div class="stat"><span>${t('statTotal')}</span><b>${fmt(run.total)}</b><em>${t('sec')}</em></div>
       </div>
-      <div class="rank-big" id="rRank">${run.cleared >= 1 ? '集計中…' : '1面以上クリアするとランキングに記録されます'}</div>
-      <button class="btn primary" id="rRetry">もう一度（${N}×${R}）</button>
-      ${reason === 'quit' ? '' : '<button class="btn" id="rAnswer">この面の解答を見る</button>'}
-      <div class="row"><button class="btn" id="rRankBtn">ランキング</button><button class="btn" id="rShare">シェア</button></div>
-      <button class="btn" id="rSel">サイズ選択へ</button>`, {
+      <div class="rank-big" id="rRank">${run.cleared >= 1 ? t('tallying') : t('needOne')}</div>
+      <button class="btn primary" id="rRetry">${t('retrySize', N, R)}</button>
+      ${reason === 'quit' ? '' : `<button class="btn" id="rAnswer">${t('boardAnswer')}</button>`}
+      <div class="row"><button class="btn" id="rRankBtn">${t('ranking')}</button><button class="btn" id="rShare">${t('share')}</button></div>
+      <button class="btn" id="rSel">${t('toSize')}</button>`, {
       rRetry: () => { closeModal('resultModal'); start(); },
       rAnswer: showAnswer,
       rRankBtn: () => openRank(N, R),
-      rShare: () => UI.share(`削減アミダクジ PUZZLE【エンドレスチャレンジ ${N}×${R}】\n${run.cleared}面クリア！（合計 ${fmt(run.total)}秒）`),
+      rShare: () => UI.share(t('shareEndless', N, R, run.cleared, fmt(run.total))),
       rSel: () => { closeModal('resultModal'); show('endlessSelect'); },
     });
   }
@@ -197,10 +198,10 @@
       show('endlessSelect');
       return;
     }
-    sheet(`<h3 class="serif" style="font-size:22px">チャレンジを終了しますか？</h3>
-      <p class="sub">ここまでの記録（${run.cleared}面クリア・${fmt(run.total)}秒）で登録されます。<br>確認中もタイマーは止まりません。</p>
-      <button class="btn primary" id="qEnd">終了して記録する</button>
-      <button class="btn" id="qBack">続ける</button>`, {
+    sheet(`<h3 class="serif" style="font-size:22px">${t('quitTitle')}</h3>
+      <p class="sub">${t('quitBody', run.cleared, fmt(run.total))}</p>
+      <button class="btn primary" id="qEnd">${t('quitEnd')}</button>
+      <button class="btn" id="qBack">${t('continue')}</button>`, {
       qEnd: () => {
         closeModal('resultModal');
         if (run.done) return; // 確認中に時間切れ
