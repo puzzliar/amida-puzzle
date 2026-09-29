@@ -142,14 +142,13 @@ const UI = (() => {
    * 記録を送信し、結果シート内の #rRank に順位を表示する
    * official=false は参考記録（公式なら何位相当かを表示）
    */
-  async function submitScore(stageId, score, time, official) {
+  async function submitScore(stageId, score, time, official, onSubmitted) {
     const el = () => document.getElementById('rRank');
     const run = async () => {
       try {
         await Ranking.submit(stageId, playerName, score, time, official);
-        const r = await Ranking.rankOf(stageId, score, time);
-        const where = Ranking.online ? '' : I18N.t('localNote');
-        if (el()) el().innerHTML = I18N.t(official ? 'officialRank' : 'refRank', r) + where;
+        if (onSubmitted) onSubmitted();
+        await showRank(stageId, score, time, official);
       } catch (e) {
         if (el()) el().textContent = e.message;
       }
@@ -157,6 +156,18 @@ const UI = (() => {
     if (playerName) return run();
     if (el()) el().innerHTML = `<button class="btn" id="rName">${I18N.t('joinRanking')}</button>`;
     document.getElementById('rName').onclick = () => askName(run);
+  }
+
+  // 送信済みの記録の順位だけを #rRank に表示（結果シートの再表示用）
+  async function showRank(stageId, score, time, official) {
+    const el = document.getElementById('rRank');
+    try {
+      const r = await Ranking.rankOf(stageId, score, time);
+      const where = Ranking.online ? '' : I18N.t('localNote');
+      if (el) el.innerHTML = I18N.t(official ? 'officialRank' : 'refRank', r) + where;
+    } catch (e) {
+      if (el) el.textContent = e.message;
+    }
   }
 
   /**
@@ -204,7 +215,7 @@ const UI = (() => {
 
   return {
     $, store, fmt, fmtClock, esc, show, onShow, toast, openModal, closeModal, sheet,
-    Timer, countdown, Life, refreshLife, askName, submitScore, openRanking, share,
+    Timer, countdown, Life, refreshLife, askName, submitScore, showRank, openRanking, share,
     get playerName() { return playerName; },
   };
 })();

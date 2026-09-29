@@ -144,6 +144,7 @@ b.gold,.gold{color:var(--gold)} b.red,.red{color:var(--red)}
 .btn.endless{border-color:var(--red);color:var(--text0);background:linear-gradient(180deg,#3a1414,#1e0c0c);font-weight:700}
 .chips{display:grid;grid-template-columns:repeat(8,1fr);gap:6px}
 #enN.chips{grid-template-columns:repeat(6,1fr)}
+#enT.chips{grid-template-columns:repeat(2,1fr)}
 .chip{padding:10px 0;border:1px solid var(--border2);border-radius:8px;background:var(--bg2);font-size:15px;font-weight:600;font-variant-numeric:tabular-nums}
 .chip.on{background:var(--gold);border-color:var(--gold);color:#1a1004}
 .en-preview{width:min(62%,240px);aspect-ratio:1;display:block;margin:4px auto}
@@ -285,6 +286,7 @@ input[type=text]{width:100%;padding:14px;border-radius:10px;border:1px solid var
 <section class="screen" id="endlessSelect">
   <div class="topbar"><button class="back" data-go="title">‹</button><h2 data-i18n="endlessTitle"></h2></div>
   <div class="scroll">
+    <div class="level"><div class="level-head"><b data-i18n="enType"></b><span data-i18n="enTypeSub"></span></div><div class="chips" id="enT"></div></div>
     <div class="level"><div class="level-head"><b data-i18n="spokes"></b><span data-i18n="spokesSub"></span></div><div class="chips" id="enN"></div></div>
     <div class="level"><div class="level-head"><b data-i18n="rungs"></b><span data-i18n="rungsSub"></span></div><div class="chips" id="enR"></div></div>
     <svg class="en-preview" id="enPreview" viewBox="-215 -215 430 430"></svg>
@@ -309,7 +311,7 @@ input[type=text]{width:100%;padding:14px;border-radius:10px;border:1px solid var
   </div>
   <div class="counter" id="enPips"></div>
   <div class="counter-label" id="enLabel"></div>
-  <div class="controls">
+  <div class="controls" id="enControls">
     <button class="btn" id="enReset" data-i18n="reset"></button>
     <button class="btn primary grow" id="enSubmit"></button>
   </div>

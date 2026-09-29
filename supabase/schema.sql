@@ -1,14 +1,14 @@
 -- 削減アミダクジ PUZZLE オンラインランキング
 -- ※ 未適用。適用する場合は Supabase のSQLエディタ等で実行し、続けて stages_seed.sql を実行する。
 --
--- stage_id: 削除モード 'cut-<Lv>-<No>' / スタート探しモード 'start-<Stage>' / エンドレス 'endless-<放射線>x<横線>'
+-- stage_id: 削除モード 'cut-<Lv>-<No>' / スタート探しモード 'start-<Stage>' / エンドレス 'endless-<放射線>x<横線>'（削除型）・'endless-h-<放射線>x<横線>'（スタート探し型）
 -- score   : 削除モード=消した横線の本数 / スタート探しモード=失敗回数（少ないほど上位）
 --           エンドレス=クリア面数（多いほど上位）
 -- official: 削除モードの2回目以降の挑戦は false（参考記録。順位に含めない）
 
 create table if not exists public.puzzle_scores (
   id          bigint generated always as identity primary key,
-  stage_id    text        not null check (stage_id ~ '^(cut-([1-9]|10)-[1-5]|start-([1-9]|10)|endless-(6|8|10|12|14|16)x([3-9]|10))$'),
+  stage_id    text        not null check (stage_id ~ '^(cut-([1-9]|10)-[1-5]|start-([1-9]|10)|endless-(h-)?(6|8|10|12|14|16)x([3-9]|10))$'),
   player_id   uuid        not null,
   player_name text        not null check (char_length(player_name) between 1 and 12),
   score       smallint    not null check (score between 0 and 9999),

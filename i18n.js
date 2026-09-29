@@ -89,7 +89,13 @@ const I18N = (() => {
     toSize: 'サイズ選択へ',
     rankEndSort: 'クリア面数が多い順 → 同数は合計タイム順',
     metricClear: 'クリア',
-    shareEndless: (N, R, c, t) => `削減アミダクジ PUZZLE【エンドレスチャレンジ ${N}×${R}】\n${c}面クリア！（合計 ${t}秒）`,
+    shareEndless: (label, c, t) => `削減アミダクジ PUZZLE【エンドレスチャレンジ ${label}】\n${c}面クリア！（合計 ${t}秒）`,
+    enType: '種類', enTypeSub: 'ゲームのルール', enTypeCut: '削除', enTypeHunt: 'スタート探し',
+    enInfoHunt: (N, R) => `<b>放射線${N}本 × 横線${R}段</b><br>ルート数が最少のスタート地点を選ぶ<br>1面の制限時間 <b>2分</b>`,
+    enHuntMission: 'ルート数が<b>最も少ない</b>スタート地点を外周の記号から選べ。',
+    enHuntWrong: (L, c) => `ハズレ　${L} のルート数 ${c}`,
+    whyHuntMiss: (L, c, A, ac) => `${L} はルート数 ${c}（正解は ${A} のルート数 ${ac}）`,
+    huntAnswerLabel: (A, c) => `正解：<b>${A}</b> からのルート数 <b>${c}</b>`,
     quitTitle: 'チャレンジを終了しますか？',
     quitBody: (c, t) => `ここまでの記録（${c}面クリア・${t}秒）で登録されます。<br>確認中もタイマーは止まりません。`,
     quitEnd: '終了して記録する',
@@ -126,9 +132,9 @@ const I18N = (() => {
     tutHuntOk: (L, c) => `<b class="gold">正解！</b> ${L} からのルート数は <b>${c}</b>。これが最短です。`,
     tutHuntNg: (L, c, A, ac) => `${L} からだとルート数 <b>${c}</b>。<br>正解は <b class="gold">${A}</b>（ルート数 <b>${ac}</b>）でした。本番では<b class="red">+30秒</b>のペナルティです。`,
     tutHunt3: '1ステージは<b>5問</b>。5問すべて正解するまでのタイムを競います。<br>間違えると<b class="red">タイム+30秒</b>＆失敗回数+1。<br>ランキングは ①<b>失敗回数が少ない</b> ②<b>タイムが速い</b> 順。問題は挑戦のたびに変わります。',
-    tutEnd1: '「エンドレスチャレンジ」は削除モードと同じルールで、<b>ランダムに作られる問題に失敗するまで挑戦し続ける</b>モードです。<br>まず<b>放射線の数×横線の数</b>で盤面の大きさを選びます。',
-    tutEnd2: (A) => `スタート地点 <b class="gold">${A}</b> からのルート数が最短になるよう横線を消して提出。正解すると<b>次の面</b>が現れます。<br>1面の制限時間は<b>2分</b>。<b class="red">間違ったルートで提出するか、時間切れで即終了</b>です。`,
-    tutEnd3: '盤面の大きさごとにランキングがあります。<br>①<b>クリアした面の数が多い</b> ②同じ面数なら<b>かかった合計タイムが短い</b> 順。<br>どこまで続けられるか、挑戦しましょう！',
+    tutEnd1: '「エンドレスチャレンジ」は、<b>ランダムに作られる問題に失敗するまで挑戦し続ける</b>モードです。<br>まず種類（<b>削除</b>／<b>スタート探し</b>）と、<b>放射線の数×横線の数</b>で盤面の大きさを選びます。',
+    tutEnd2: (A) => `「削除」ならスタート地点 <b class="gold">${A}</b> からのルート数が最短になるよう横線を消して提出、「スタート探し」ならルート数が最少のスタート地点をタップ。正解すると<b>次の面</b>が現れます。<br>1面の制限時間は<b>2分</b>。<b class="red">1回でも間違えるか、時間切れで即終了</b>です。`,
+    tutEnd3: '種類と盤面の大きさごとにランキングがあります。<br>①<b>クリアした面の数が多い</b> ②同じ面数なら<b>かかった合計タイムが短い</b> 順。<br>どこまで続けられるか、挑戦しましょう！',
     // 遊び方
     howtoTitle: '遊び方',
     howtoIntro: '<p>中央から放射状にのびる線（放射線）と、隣どうしを結ぶ<b class="red">赤い横線</b>でできたアミダクジです。スタート地点から中央に向かって進み、横線にぶつかったら必ず渡って隣の放射線へ移ります。中央に着くまでに<b>横線を渡った回数＝ルート数</b>です。</p>',
@@ -156,11 +162,12 @@ const I18N = (() => {
       <ol><li><b>失敗回数が少ない方が上位</b></li><li>同じ回数なら<b>タイムが短い方が上位</b></li></ol>`,
     howtoEndless: `<h3>エンドレスチャレンジ</h3>
       <ul>
-        <li><b>放射線の数×横線の数</b>で盤面の大きさを選び、ランダムに作られる問題（削除モードと同じルール）に失敗するまで挑戦し続けます。</li>
+        <li>種類（<b>削除</b>／<b>スタート探し</b>）と<b>放射線の数×横線の数</b>で盤面の大きさを選び、ランダムに作られる問題に失敗するまで挑戦し続けます。</li>
+        <li>「削除」は削除モード、「スタート探し」はスタート探しモードと同じルールです。</li>
         <li>1面の制限時間は<b>2分</b>。正解すると次の面が現れます。</li>
-        <li><b class="red">間違ったルートで提出するか、時間切れで即終了</b>です。</li>
+        <li><b class="red">1回でも間違える（誤ったルートで提出／誤ったスタート地点を選択）か、時間切れで即終了</b>です。</li>
       </ul>
-      <h4>ランキング（盤面の大きさごと）</h4>
+      <h4>ランキング（種類×盤面の大きさごと）</h4>
       <ol><li><b>クリアした面の数が多い方が上位</b></li><li>同じ面数なら<b>クリアした面の合計タイムが短い方が上位</b></li></ol>`,
     howtoNote: '<p class="note">本家「削減アミダクジ」は、プレイヤーが交渉しながら横線を消し合い、中央までのルート数が最も少ない「最終生存者」を目指すリアル交渉ゲームです。</p>',
     tutCutAgain: '削除モードのチュートリアルを見る',
@@ -245,7 +252,13 @@ const I18N = (() => {
     toSize: 'Choose size',
     rankEndSort: 'Most boards cleared first → then shortest total time',
     metricClear: 'Cleared',
-    shareEndless: (N, R, c, t) => `Sakugen Amidakuji PUZZLE [Endless ${N}×${R}]\nCleared ${c} boards! (total ${t}s)`,
+    shareEndless: (label, c, t) => `Sakugen Amidakuji PUZZLE [Endless ${label}]\nCleared ${c} boards! (total ${t}s)`,
+    enType: 'Type', enTypeSub: 'game rules', enTypeCut: 'Cut', enTypeHunt: 'Start Hunt',
+    enInfoHunt: (N, R) => `<b>${N} spokes × ${R} rungs</b><br>Pick the start with the fewest crossings<br><b>2 min</b> per board`,
+    enHuntMission: 'Pick the start on the rim with the <b>fewest</b> crossings.',
+    enHuntWrong: (L, c) => `Wrong — ${L}: ${c} crossings`,
+    whyHuntMiss: (L, c, A, ac) => `${L} has ${c} crossings (answer: ${A} with ${ac})`,
+    huntAnswerLabel: (A, c) => `Answer: <b>${A}</b> with <b>${c}</b> crossings`,
     quitTitle: 'End this challenge?',
     quitBody: (c, t) => `Your result so far (${c} boards, ${t}s) will be saved.<br>The timer keeps running while you decide.`,
     quitEnd: 'End and save',
@@ -280,9 +293,9 @@ const I18N = (() => {
     tutHuntOk: (L, c) => `<b class="gold">Correct!</b> From ${L} the route has <b>${c}</b> crossings — the shortest.`,
     tutHuntNg: (L, c, A, ac) => `From ${L} there are <b>${c}</b> crossings.<br>The answer was <b class="gold">${A}</b> (<b>${ac}</b> crossings). In the real game a miss costs <b class="red">+30s</b>.`,
     tutHunt3: 'Each stage has <b>5 puzzles</b>. Compete on the time to solve all five.<br>A miss adds <b class="red">+30 seconds</b> and 1 miss.<br>Ranking: ① <b>fewest misses</b> ② <b>fastest time</b>. Puzzles change every attempt.',
-    tutEnd1: '“Endless Challenge” uses the Cut Mode rules: <b>keep solving randomly generated boards until you fail</b>.<br>First choose the board size: <b>spokes × rungs</b>.',
-    tutEnd2: (A) => `Cut rungs so the route from <b class="gold">${A}</b> is as short as possible, then submit. Solve it and the <b>next board</b> appears.<br>Each board has a <b>2-minute</b> limit. <b class="red">One wrong answer or a timeout ends the run</b>.`,
-    tutEnd3: 'Each board size has its own ranking.<br>① <b>most boards cleared</b> ② for ties, <b>shortest total time</b>.<br>How far can you go?',
+    tutEnd1: 'In “Endless Challenge” you <b>keep solving randomly generated boards until you fail</b>.<br>First choose the type (<b>Cut</b> / <b>Start Hunt</b>) and the board size: <b>spokes × rungs</b>.',
+    tutEnd2: (A) => `In “Cut”, cut rungs so the route from <b class="gold">${A}</b> is as short as possible and submit; in “Start Hunt”, tap the start with the fewest crossings. Solve it and the <b>next board</b> appears.<br>Each board has a <b>2-minute</b> limit. <b class="red">One wrong answer or a timeout ends the run</b>.`,
+    tutEnd3: 'Each type and board size has its own ranking.<br>① <b>most boards cleared</b> ② for ties, <b>shortest total time</b>.<br>How far can you go?',
     howtoTitle: 'How to Play',
     howtoIntro: '<p>An Amidakuji (ladder lottery) made of lines radiating from the center (<b>spokes</b>) and <b class="red">red rungs</b> linking neighboring spokes. Start from a point on the rim and head to the center; whenever you meet a rung you must cross it to the next spoke. The number of rungs crossed on the way to the center is the <b>crossing count</b>.</p>',
     howtoCut: `<h3>Cut Mode</h3>
@@ -309,11 +322,12 @@ const I18N = (() => {
       <ol><li><b>Fewer misses ranks higher</b></li><li>For ties, <b>faster time ranks higher</b></li></ol>`,
     howtoEndless: `<h3>Endless Challenge</h3>
       <ul>
-        <li>Choose a board size (<b>spokes × rungs</b>) and keep solving randomly generated boards (Cut Mode rules) until you fail.</li>
+        <li>Choose a type (<b>Cut</b> / <b>Start Hunt</b>) and a board size (<b>spokes × rungs</b>), and keep solving randomly generated boards until you fail.</li>
+        <li>“Cut” follows the Cut Mode rules; “Start Hunt” follows the Start Hunt rules.</li>
         <li>Each board has a <b>2-minute</b> limit. Solve it and the next board appears.</li>
-        <li><b class="red">One wrong answer or a timeout ends the run.</b></li>
+        <li><b class="red">One wrong answer (a wrong route or a wrong start) or a timeout ends the run.</b></li>
       </ul>
-      <h4>Ranking (per board size)</h4>
+      <h4>Ranking (per type and board size)</h4>
       <ol><li><b>More boards cleared ranks higher</b></li><li>For ties, <b>shorter total time ranks higher</b></li></ol>`,
     howtoNote: '<p class="note">The original “Sakugen Amidakuji” is a live negotiation game: players negotiate while cutting rungs, aiming to be the “last survivor” with the fewest crossings to the center.</p>',
     tutCutAgain: 'Cut Mode tutorial',
