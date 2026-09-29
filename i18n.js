@@ -38,7 +38,10 @@ const I18N = (() => {
     lifeBar: 'ライフ（ミスで−1・30分で1回復）',
     lvHead: (N, R, k) => `放射線${N}本・横線${R}段／消せるのは${k}本まで`,
     cutSub: (c, t) => `${c}本 ${t}s`,
-    noLife: (clock) => `ライフがありません。<br>30分ごとに1回復します（次の回復まで ${clock}）。<br>その間は「スタート探しモード」で遊べます。`,
+    noLife: (clock) => `ライフがありません。<br>30分ごとに1回復します（次の回復まで ${clock}）。`,
+    lifeZeroStage: (clock) => `ライフが0になったため、このステージの挑戦は終了です。<br>30分ごとに1回復します（次の回復まで ${clock}）。`,
+    lifeAria: (l, m) => `ライフ ${l} / ${m}`,
+    enLifeCost: '挑戦1回につきライフを<b>1</b>消費',
     firstTry: '<span class="tag official">初回挑戦</span> この挑戦の記録が公式記録になります',
     retryTry: '<span class="tag ref">再挑戦</span> 記録は参考記録になります',
     missCross: (c) => `ルート数 <b>${c}</b>。まだ短くできます。`,
@@ -126,26 +129,27 @@ const I18N = (() => {
     tutCut3: '横線はタップすると消せます（もう一度タップで元に戻ります）。<br><b class="gold">光っている横線</b>をタップしてみましょう。',
     tutCut4: (a, b) => `ルートが変わって、ルート数が <b>${a} → ${b}</b> に！<br>このように<b>どの横線を消せばルート数が最短になるか</b>を考えるパズルです。`,
     tutCut5: 'ステージごとに<b>消せる本数の上限</b>があります。上限内でたどり着ける最短ルートにできたら <b class="gold">CLEAR</b>。<br>ランキングは ①<b>消した本数が少ない</b> ②<b>タイムが速い</b> 順。<br><b>各ステージ初回の挑戦だけが公式記録</b>で、2回目以降は参考記録になります。',
-    tutCut6: '不正解だと<b class="red">ライフが1減ります</b>（最大10）。0になると遊べませんが、<b>30分ごとに1回復</b>します。<br>さあ、挑戦しましょう！',
+    tutCut6: 'ライフは<b>全モード共通</b>で最大10。不正解だと<b class="red">1減ります</b>（エンドレスは挑戦1回ごとに1消費）。0になると遊べませんが、<b>30分ごとに1回復</b>します。<br>さあ、挑戦しましょう！',
     tutHunt1: '「スタート探しモード」では、<b>横線がランダムに消えたアミダクジ</b>が出題されます。',
     tutHunt2: 'どのスタート地点から進むと<b>ルート数（横線を渡る回数）が最も少ない</b>でしょう？<br>外周の記号をタップして答えてみましょう。',
     tutHuntOk: (L, c) => `<b class="gold">正解！</b> ${L} からのルート数は <b>${c}</b>。これが最短です。`,
     tutHuntNg: (L, c, A, ac) => `${L} からだとルート数 <b>${c}</b>。<br>正解は <b class="gold">${A}</b>（ルート数 <b>${ac}</b>）でした。本番では<b class="red">+30秒</b>のペナルティです。`,
-    tutHunt3: '1ステージは<b>5問</b>。5問すべて正解するまでのタイムを競います。<br>間違えると<b class="red">タイム+30秒</b>＆失敗回数+1。<br>ランキングは ①<b>失敗回数が少ない</b> ②<b>タイムが速い</b> 順。問題は挑戦のたびに変わります。',
+    tutHunt3: '1ステージは<b>5問</b>。5問すべて正解するまでのタイムを競います。<br>間違えると<b class="red">タイム+30秒</b>＆失敗回数+1、<b class="red">ライフも1減ります</b>。<br>ランキングは ①<b>失敗回数が少ない</b> ②<b>タイムが速い</b> 順。問題は挑戦のたびに変わります。',
     tutEnd1: '「エンドレスチャレンジ」は、<b>ランダムに作られる問題に失敗するまで挑戦し続ける</b>モードです。<br>まず種類（<b>削除</b>／<b>スタート探し</b>）と、<b>放射線の数×横線の数</b>で盤面の大きさを選びます。',
     tutEnd2: (A) => `「削除」ならスタート地点 <b class="gold">${A}</b> からのルート数が最短になるよう横線を消して提出、「スタート探し」ならルート数が最少のスタート地点をタップ。正解すると<b>次の面</b>が現れます。<br>1面の制限時間は<b>2分</b>。<b class="red">1回でも間違えるか、時間切れで即終了</b>です。`,
-    tutEnd3: '種類と盤面の大きさごとにランキングがあります。<br>①<b>クリアした面の数が多い</b> ②同じ面数なら<b>かかった合計タイムが短い</b> 順。<br>どこまで続けられるか、挑戦しましょう！',
+    tutEnd3: '種類と盤面の大きさごとにランキングがあります。<br>①<b>クリアした面の数が多い</b> ②同じ面数なら<b>かかった合計タイムが短い</b> 順。<br>挑戦1回につき<b class="red">ライフを1消費</b>します。どこまで続けられるか、挑戦しましょう！',
     // 遊び方
     howtoTitle: '遊び方',
-    howtoIntro: '<p>中央から放射状にのびる線（放射線）と、隣どうしを結ぶ<b class="red">赤い横線</b>でできたアミダクジです。スタート地点から中央に向かって進み、横線にぶつかったら必ず渡って隣の放射線へ移ります。中央に着くまでに<b>横線を渡った回数＝ルート数</b>です。</p>',
+    howtoIntro: `<p>中央から放射状にのびる線（放射線）と、隣どうしを結ぶ<b class="red">赤い横線</b>でできたアミダクジです。スタート地点から中央に向かって進み、横線にぶつかったら必ず渡って隣の放射線へ移ります。中央に着くまでに<b>横線を渡った回数＝ルート数</b>です。</p>
+      <h3>ライフ（全モード共通）</h3>
+      <p>はじめは<b>10</b>。削除モードとスタート探しモードは<b class="red">不正解で1減り</b>、エンドレスチャレンジは<b class="red">挑戦1回ごとに1消費</b>します。0になると挑戦できません。<b>30分ごとに1回復</b>します。</p>`,
     howtoCut: `<h3>削除モード</h3>
       <ul>
         <li>横線をタップして消し、<b class="gold">金色のスタート地点</b>からのルート数を<b>最短</b>にします。</li>
         <li>ステージごとに<b>消せる本数の上限</b>があります。点線の横線ははじめから消えています。</li>
         <li>上限内でたどり着ける最短ルートにできたら <b class="gold">CLEAR</b>。必要最少本数なら <b class="gold">PERFECT</b>。</li>
       </ul>
-      <h4>ライフ</h4>
-      <p>はじめは<b>10</b>。不正解で1減り、0になると遊べません。<b>30分ごとに1回復</b>します。不正解でも「続ける」で再挑戦できます（選んだ横線はリセット・タイマーは継続）。</p>
+      <p>不正解だとライフが1減ります。ライフが残っていれば「続ける」で再挑戦できます（選んだ横線はリセット・タイマーは継続）。</p>
       <h4>ランキング</h4>
       <ol><li><b>消した横線が少ない方が上位</b></li><li>同じ本数なら<b>タイムが短い方が上位</b></li></ol>
       <p class="note">各ステージ<b>初回の挑戦の記録だけが公式記録</b>です。2回目以降の挑戦（ギブアップ後やクリア後の再挑戦）の記録は<b>参考記録</b>になり、順位には入りません。</p>
@@ -155,7 +159,7 @@ const I18N = (() => {
       <ul>
         <li>横線がランダムに消えたアミダクジから、<b>ルート数が最も少なくなるスタート地点</b>を外周の記号をタップして選びます。</li>
         <li>1ステージ<b>5問</b>。正解すると次の問題へ。5問すべて正解するまでのタイムを記録します。</li>
-        <li>間違えると<b class="red">タイム+30秒</b>、失敗回数+1。</li>
+        <li>間違えると<b class="red">タイム+30秒</b>、失敗回数+1、<b class="red">ライフ−1</b>。ライフが0になるとそのステージは終了です。</li>
         <li>問題は挑戦のたびに変わります。</li>
       </ul>
       <h4>ランキング</h4>
@@ -166,6 +170,7 @@ const I18N = (() => {
         <li>「削除」は削除モード、「スタート探し」はスタート探しモードと同じルールです。</li>
         <li>1面の制限時間は<b>2分</b>。正解すると次の面が現れます。</li>
         <li><b class="red">1回でも間違える（誤ったルートで提出／誤ったスタート地点を選択）か、時間切れで即終了</b>です。</li>
+        <li>挑戦1回につき<b class="red">ライフを1消費</b>します。</li>
       </ul>
       <h4>ランキング（種類×盤面の大きさごと）</h4>
       <ol><li><b>クリアした面の数が多い方が上位</b></li><li>同じ面数なら<b>クリアした面の合計タイムが短い方が上位</b></li></ol>`,
@@ -203,7 +208,10 @@ const I18N = (() => {
     lifeBar: 'Lives (−1 per miss, +1 every 30 min)',
     lvHead: (N, R, k) => `${N} spokes · ${R} rungs / cut up to ${k}`,
     cutSub: (c, t) => `${c} cut ${t}s`,
-    noLife: (clock) => `You have no lives left.<br>You recover 1 life every 30 min (next in ${clock}).<br>Meanwhile, try Start Hunt mode.`,
+    noLife: (clock) => `You have no lives left.<br>You recover 1 life every 30 min (next in ${clock}).`,
+    lifeZeroStage: (clock) => `You ran out of lives, so this stage ends here.<br>You recover 1 life every 30 min (next in ${clock}).`,
+    lifeAria: (l, m) => `Lives ${l} of ${m}`,
+    enLifeCost: 'Each run costs <b>1</b> life',
     firstTry: '<span class="tag official">1st try</span> This attempt counts as your official record',
     retryTry: '<span class="tag ref">Retry</span> Your result will be unofficial',
     missCross: (c) => `<b>${c}</b> crossings. It can be shorter.`,
@@ -287,25 +295,26 @@ const I18N = (() => {
     tutCut3: 'Tap a rung to cut it (tap again to restore it).<br>Try tapping the <b class="gold">glowing rung</b>.',
     tutCut4: (a, b) => `The route changed: crossings went <b>${a} → ${b}</b>!<br>The puzzle is to find <b>which rungs to cut to make the route as short as possible</b>.`,
     tutCut5: 'Each stage has a <b>limit on how many rungs you can cut</b>. Reach the shortest route possible within the limit to <b class="gold">CLEAR</b>.<br>Ranking: ① <b>fewest cuts</b> ② <b>fastest time</b>.<br><b>Only your first attempt at each stage is official</b>; retries are unofficial.',
-    tutCut6: 'A wrong answer <b class="red">costs 1 life</b> (max 10). At 0 you can’t play, but you <b>recover 1 life every 30 minutes</b>.<br>Let’s go!',
+    tutCut6: 'Lives are <b>shared by all modes</b> (max 10). A wrong answer <b class="red">costs 1 life</b> (in Endless, each run costs 1). At 0 you can’t play, but you <b>recover 1 life every 30 minutes</b>.<br>Let’s go!',
     tutHunt1: 'In “Start Hunt”, you get an Amidakuji where <b>rungs have been removed at random</b>.',
     tutHunt2: 'From which start is the <b>crossing count (rungs crossed) the smallest</b>?<br>Tap a letter on the rim to answer.',
     tutHuntOk: (L, c) => `<b class="gold">Correct!</b> From ${L} the route has <b>${c}</b> crossings — the shortest.`,
     tutHuntNg: (L, c, A, ac) => `From ${L} there are <b>${c}</b> crossings.<br>The answer was <b class="gold">${A}</b> (<b>${ac}</b> crossings). In the real game a miss costs <b class="red">+30s</b>.`,
-    tutHunt3: 'Each stage has <b>5 puzzles</b>. Compete on the time to solve all five.<br>A miss adds <b class="red">+30 seconds</b> and 1 miss.<br>Ranking: ① <b>fewest misses</b> ② <b>fastest time</b>. Puzzles change every attempt.',
+    tutHunt3: 'Each stage has <b>5 puzzles</b>. Compete on the time to solve all five.<br>A miss adds <b class="red">+30 seconds</b> and 1 miss, and <b class="red">costs 1 life</b>.<br>Ranking: ① <b>fewest misses</b> ② <b>fastest time</b>. Puzzles change every attempt.',
     tutEnd1: 'In “Endless Challenge” you <b>keep solving randomly generated boards until you fail</b>.<br>First choose the type (<b>Cut</b> / <b>Start Hunt</b>) and the board size: <b>spokes × rungs</b>.',
     tutEnd2: (A) => `In “Cut”, cut rungs so the route from <b class="gold">${A}</b> is as short as possible and submit; in “Start Hunt”, tap the start with the fewest crossings. Solve it and the <b>next board</b> appears.<br>Each board has a <b>2-minute</b> limit. <b class="red">One wrong answer or a timeout ends the run</b>.`,
-    tutEnd3: 'Each type and board size has its own ranking.<br>① <b>most boards cleared</b> ② for ties, <b>shortest total time</b>.<br>How far can you go?',
+    tutEnd3: 'Each type and board size has its own ranking.<br>① <b>most boards cleared</b> ② for ties, <b>shortest total time</b>.<br>Each run <b class="red">costs 1 life</b>. How far can you go?',
     howtoTitle: 'How to Play',
-    howtoIntro: '<p>An Amidakuji (ladder lottery) made of lines radiating from the center (<b>spokes</b>) and <b class="red">red rungs</b> linking neighboring spokes. Start from a point on the rim and head to the center; whenever you meet a rung you must cross it to the next spoke. The number of rungs crossed on the way to the center is the <b>crossing count</b>.</p>',
+    howtoIntro: `<p>An Amidakuji (ladder lottery) made of lines radiating from the center (<b>spokes</b>) and <b class="red">red rungs</b> linking neighboring spokes. Start from a point on the rim and head to the center; whenever you meet a rung you must cross it to the next spoke. The number of rungs crossed on the way to the center is the <b>crossing count</b>.</p>
+      <h3>Lives (shared by all modes)</h3>
+      <p>You start with <b>10</b>. In Cut Mode and Start Hunt a <b class="red">wrong answer costs 1</b>; in Endless Challenge <b class="red">each run costs 1</b>. At 0 you can’t start a challenge. You <b>recover 1 every 30 minutes</b>.</p>`,
     howtoCut: `<h3>Cut Mode</h3>
       <ul>
         <li>Tap rungs to cut them and make the crossing count from the <b class="gold">gold start</b> as <b>small as possible</b>.</li>
         <li>Each stage has a <b>limit on how many rungs you can cut</b>. Dotted rungs are already removed.</li>
         <li>Reach the shortest route possible within the limit to <b class="gold">CLEAR</b>. Do it with the fewest cuts for a <b class="gold">PERFECT</b>.</li>
       </ul>
-      <h4>Lives</h4>
-      <p>You start with <b>10</b>. A wrong answer costs 1, and at 0 you can’t play. You <b>recover 1 every 30 minutes</b>. After a miss you can “Continue” (your cuts reset, the timer keeps running).</p>
+      <p>A wrong answer costs 1 life. If you still have lives, you can “Continue” (your cuts reset, the timer keeps running).</p>
       <h4>Ranking</h4>
       <ol><li><b>Fewer rungs cut ranks higher</b></li><li>For ties, <b>faster time ranks higher</b></li></ol>
       <p class="note"><b>Only your first attempt at each stage is an official record.</b> Later attempts (after giving up or clearing) are <b>unofficial</b> and not ranked.</p>
@@ -315,7 +324,7 @@ const I18N = (() => {
       <ul>
         <li>On an Amidakuji with rungs removed at random, tap the letter on the rim for the <b>start with the fewest crossings</b>.</li>
         <li><b>5 puzzles</b> per stage. Solve one to move on; your time to solve all five is recorded.</li>
-        <li>A miss adds <b class="red">+30 seconds</b> and 1 miss.</li>
+        <li>A miss adds <b class="red">+30 seconds</b>, 1 miss and <b class="red">−1 life</b>. At 0 lives the stage ends.</li>
         <li>Puzzles change every attempt.</li>
       </ul>
       <h4>Ranking</h4>
@@ -326,6 +335,7 @@ const I18N = (() => {
         <li>“Cut” follows the Cut Mode rules; “Start Hunt” follows the Start Hunt rules.</li>
         <li>Each board has a <b>2-minute</b> limit. Solve it and the next board appears.</li>
         <li><b class="red">One wrong answer (a wrong route or a wrong start) or a timeout ends the run.</b></li>
+        <li>Each run <b class="red">costs 1 life</b>.</li>
       </ul>
       <h4>Ranking (per type and board size)</h4>
       <ol><li><b>More boards cleared ranks higher</b></li><li>For ties, <b>shorter total time ranks higher</b></li></ol>`,

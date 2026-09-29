@@ -65,12 +65,16 @@ b.gold,.gold{color:var(--gold)} b.red,.red{color:var(--red)}
 .topbar{display:flex;align-items:center;gap:8px;margin-bottom:14px}
 .topbar h2{flex:1;font-family:var(--serif);font-size:20px;letter-spacing:.1em}
 .back{width:40px;height:40px;border:1px solid var(--border);border-radius:50%;font-size:18px;flex:none}
-.life-view{display:inline-flex;align-items:baseline;gap:3px;font-size:13px;color:var(--text1);white-space:nowrap;font-variant-numeric:tabular-nums}
-.life-view .heart{color:var(--red)}
-.life-view b{color:var(--text0);font-size:15px}
-.life-view small{font-size:10px;color:var(--text2);margin-left:4px}
-.hud .life-view small{display:none}
-.life-bar{display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border);background:var(--bg1);border-radius:10px;padding:8px 12px;margin-bottom:12px;font-size:12px;color:var(--text2)}
+.life-row{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 10px;margin:8px 0 2px;border:1px solid var(--border);background:var(--bg1);border-radius:10px}
+.topbar+.life-row{margin:-4px 0 12px}
+.hearts{display:flex;gap:3px}
+.hearts .h{display:block;width:clamp(15px,4.6vw,20px);height:clamp(14px,4.2vw,18px)}
+.hearts svg{width:100%;height:100%;display:block;fill:none;stroke:#4a4a46;stroke-width:1.8}
+.hearts .h.on svg{fill:var(--red);stroke:var(--red)}
+.life-view small{font-size:11px;color:var(--text2);white-space:nowrap;font-variant-numeric:tabular-nums}
+.life-big .hearts{justify-content:center;margin-bottom:4px}
+.life-big small{display:block;font-size:11px;color:var(--text2)}
+.life-big em{display:block;font-style:normal;font-size:12px;color:var(--red)}
 
 /* ステージ選択 */
 .level{border:1px solid var(--border);background:var(--bg1);border-radius:12px;padding:12px;margin-bottom:12px}
@@ -180,8 +184,7 @@ b.gold,.gold{color:var(--gold)} b.red,.red{color:var(--red)}
 .stat span{display:block;font-size:10px;color:var(--text1);letter-spacing:.05em}
 .stat b{font-size:22px;font-variant-numeric:tabular-nums}
 .stat em{display:block;font-style:normal;font-size:10px;color:var(--gold);margin-top:2px}
-.life-big{text-align:center;font-size:24px;margin:4px 0 12px;font-variant-numeric:tabular-nums}
-.life-big small{display:block;font-size:11px;color:var(--red)}
+.life-big{text-align:center;margin:4px 0 12px}
 .rank-big{text-align:center;margin-bottom:14px;font-size:13px;color:var(--text1);line-height:1.8}
 .rank-big b{font-family:var(--serif);font-size:30px;color:var(--gold);margin:0 4px}
 .sheet .btn{margin-top:8px}
@@ -233,7 +236,7 @@ input[type=text]{width:100%;padding:14px;border-radius:10px;border:1px solid var
 <!-- 削除モード: ステージ選択 -->
 <section class="screen" id="select">
   <div class="topbar"><button class="back" data-go="title">‹</button><h2 data-i18n="cutTitle"></h2><span class="muted" id="clearCount"></span></div>
-  <div class="life-bar"><span data-i18n="lifeBar"></span><span class="life-view"></span></div>
+  <div class="life-row life-view"></div>
   <div class="scroll" id="levelList"></div>
 </section>
 
@@ -242,9 +245,9 @@ input[type=text]{width:100%;padding:14px;border-radius:10px;border:1px solid var
   <div class="hud">
     <button class="back" id="quit">‹</button>
     <div class="stage-name" id="stageName"></div>
-    <span class="life-view"></span>
     <button class="btn small" id="zoomBtn"></button>
   </div>
+  <div class="life-row life-view"></div>
   <div class="mission" id="mission"></div>
   <div class="board-wrap" id="boardWrap">
     <svg class="board" id="board" viewBox="-215 -215 430 430"></svg>
@@ -262,6 +265,7 @@ input[type=text]{width:100%;padding:14px;border-radius:10px;border:1px solid var
 <!-- スタート探しモード: ステージ選択 -->
 <section class="screen" id="huntSelect">
   <div class="topbar"><button class="back" data-go="title">‹</button><h2 data-i18n="huntTitle"></h2><span class="muted" id="huntClearCount"></span></div>
+  <div class="life-row life-view"></div>
   <div class="scroll" id="huntList"></div>
 </section>
 
@@ -273,6 +277,7 @@ input[type=text]{width:100%;padding:14px;border-radius:10px;border:1px solid var
     <button class="btn small" id="huntZoom"></button>
     <div class="timer" id="huntTimer">0.00</div>
   </div>
+  <div class="life-row life-view"></div>
   <div class="hunt-status"><div class="qdots" id="huntProgress"></div><div id="huntMisses"></div></div>
   <p class="hunt-hint" data-i18n="huntHint"></p>
   <div class="board-wrap" id="huntWrap">
@@ -285,6 +290,7 @@ input[type=text]{width:100%;padding:14px;border-radius:10px;border:1px solid var
 <!-- エンドレスチャレンジ: サイズ選択 -->
 <section class="screen" id="endlessSelect">
   <div class="topbar"><button class="back" data-go="title">‹</button><h2 data-i18n="endlessTitle"></h2></div>
+  <div class="life-row life-view"></div>
   <div class="scroll">
     <div class="level"><div class="level-head"><b data-i18n="enType"></b><span data-i18n="enTypeSub"></span></div><div class="chips" id="enT"></div></div>
     <div class="level"><div class="level-head"><b data-i18n="spokes"></b><span data-i18n="spokesSub"></span></div><div class="chips" id="enN"></div></div>
@@ -304,6 +310,7 @@ input[type=text]{width:100%;padding:14px;border-radius:10px;border:1px solid var
     <button class="btn small" id="enZoom"></button>
     <div class="timer" id="enTimer">2:00.0</div>
   </div>
+  <div class="life-row life-view"></div>
   <div class="mission" id="enMission"></div>
   <div class="board-wrap" id="enWrap">
     <svg class="board" id="enBoard" viewBox="-215 -215 430 430"></svg>

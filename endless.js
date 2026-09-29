@@ -32,6 +32,7 @@
     Board.draw($('#enPreview'), { N, R, removed: [] }, { labels: type === 'hunt' ? 'pick' : 'none' });
     const best = Ranking.mine(rid(type, N, R)).official;
     $('#enInfo').innerHTML = (type === 'hunt' ? t('enInfoHunt', N, R) : t('enInfo', N, R, AmidaCore.cutLimit(N, R))) +
+      `<br>${t('enLifeCost')}` +
       `<br>${t('myBest')}${best ? t('bestVal', best.score, fmt(best.time_ms)) : t('noRecords')}`;
     $('#enT').querySelectorAll('.chip').forEach((b) => (b.onclick = () => { sel.type = b.dataset.t; saveSel(); renderSelect(); }));
     $('#enN').querySelectorAll('.chip').forEach((b) => (b.onclick = () => { sel.N = +b.dataset.n; saveSel(); renderSelect(); }));
@@ -90,6 +91,8 @@
   }
 
   function start() {
+    if (!UI.lifeGate()) return;
+    UI.Life.lose(); // 挑戦1回につきライフ1消費
     run = { type: sel.type, N: sel.N, R: sel.R, cleared: 0, total: 0 };
     $('#enSubmit').onclick = null;
     $('#enSubmit').textContent = t('submit');

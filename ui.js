@@ -16,6 +16,7 @@ const UI = (() => {
   const hooks = {};
   function show(id) {
     document.querySelectorAll('.screen').forEach((e) => e.classList.toggle('active', e.id === id));
+    refreshLife();
     if (hooks[id]) hooks[id]();
     window.scrollTo(0, 0);
   }
@@ -102,12 +103,27 @@ const UI = (() => {
       store.set(KEY, s);
       return get();
     }
+    // 保有ライフを10個のハートで表示（残り=赤、減った分=枠のみ）
+    const HEART = '<svg viewBox="0 0 24 22" aria-hidden="true"><path d="M12 21s-8.5-5.3-10.6-10.3C-.3 6.4 2.6 1.5 7 1.5c2.2 0 3.9 1.2 5 2.9 1.1-1.7 2.8-2.9 5-2.9 4.4 0 7.3 4.9 5.6 9.2C20.5 15.7 12 21 12 21z"/></svg>';
     function html() {
       const g = get();
-      return `<span class="heart">❤</span><b>${g.life}</b>/${MAX}` + (g.life < MAX ? `<small>${I18N.t('lifeRecover', fmtClock(g.nextMs))}</small>` : '');
+      const hearts = Array.from({ length: MAX }, (_, k) => `<i class="h${k < g.life ? ' on' : ''}">${HEART}</i>`).join('');
+      return `<span class="hearts" role="img" aria-label="${I18N.t('lifeAria', g.life, MAX)}">${hearts}</span>` +
+        `<small>${g.life < MAX ? I18N.t('lifeRecover', fmtClock(g.nextMs)) : 'MAX'}</small>`;
     }
     return { get, lose, html, MAX };
   })();
+
+  // 挑戦開始前のライフ確認。0なら案内を出して false
+  function lifeGate() {
+    const g = Life.get();
+    if (g.life > 0) return true;
+    sheet(`<h3 class="ng serif">NO LIFE</h3>
+      <div class="life-big">${Life.html()}</div>
+      <p class="sub">${I18N.t('noLife', fmtClock(g.nextMs))}</p>
+      <button class="btn" id="rClose">${I18N.t('close')}</button>`, { rClose: () => closeModal('resultModal') });
+    return false;
+  }
   setInterval(() => document.querySelectorAll('.life-view').forEach((e) => (e.innerHTML = Life.html())), 1000);
   const refreshLife = () => document.querySelectorAll('.life-view').forEach((e) => (e.innerHTML = Life.html()));
 
@@ -215,7 +231,7 @@ const UI = (() => {
 
   return {
     $, store, fmt, fmtClock, esc, show, onShow, toast, openModal, closeModal, sheet,
-    Timer, countdown, Life, refreshLife, askName, submitScore, showRank, openRanking, share,
+    Timer, countdown, Life, refreshLife, lifeGate, askName, submitScore, showRank, openRanking, share,
     get playerName() { return playerName; },
   };
 })();

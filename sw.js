@@ -1,5 +1,5 @@
 /* オフライン対応（アプリ本体をキャッシュ。ランキング通信はキャッシュしない） */
-const CACHE = 'sap-v5';
+const CACHE = 'sap-v6';
 const ASSETS = ['./', 'index.html', 'i18n.js', 'app.js', 'hunt.js', 'endless.js', 'tutorial.js', 'ui.js', 'board.js', 'amida-core.js', 'stages.js', 'ranking.js', 'config.js', 'manifest.webmanifest', 'icon.svg'];
 
 self.addEventListener('install', (e) => {

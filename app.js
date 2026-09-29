@@ -66,15 +66,8 @@
     $('#counterLabel').innerHTML = t('cutCount', used, st.limit);
   }
 
-  function lifeEmptySheet() {
-    const g = Life.get();
-    sheet(`<h3 class="ng serif">NO LIFE</h3>
-      <p class="sub">${t('noLife', UI.fmtClock(g.nextMs))}</p>
-      <button class="btn" id="rClose">${t('close')}</button>`, { rClose: () => closeModal('resultModal') });
-  }
-
   function startStage(i) {
-    if (Life.get().life <= 0) { lifeEmptySheet(); return; }
+    if (!UI.lifeGate()) return;
     const st = STAGES[i];
     cur = { i, stage: st, cut: new Set(), official: false, done: false };
     const first = !attempts[st.id];
@@ -153,7 +146,7 @@
     if (g.life <= 0) {
       sheet(`<h3 class="ng serif">MISS</h3>
         <p class="sub">${t('missCross', res.crossings)}</p>
-        <div class="life-big">❤ 0 / ${g.max}</div>
+        <div class="life-big">${Life.html()}</div>
         <p class="sub">${t('lifeZero', UI.fmtClock(g.nextMs))}</p>
         <button class="btn" id="rGiveup">${t('seeAnswer')}</button>
         <button class="btn" id="rSel">${t('toSelect')}</button>`, {
@@ -164,7 +157,7 @@
     }
     sheet(`<h3 class="ng serif">MISS</h3>
       <p class="sub">${t('missCross', res.crossings)}</p>
-      <div class="life-big">❤ ${g.life} / ${g.max}<small>${t('lifeMinus')}</small></div>
+      <div class="life-big">${Life.html()}<em>${t('lifeMinus')}</em></div>
       <p class="sub">${t('missNote')}</p>
       <button class="btn primary" id="rContinue">${t('continue')}</button>
       <button class="btn" id="rGiveup">${t('giveup')}</button>`, {

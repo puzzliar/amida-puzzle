@@ -43,6 +43,7 @@
   }
 
   function start(k) {
+    if (!UI.lifeGate()) return;
     const hs = HUNT_STAGES[k];
     // 挑戦ごとにランダム生成
     const puzzles = Array.from({ length: PER_STAGE }, () => AmidaCore.huntPuzzle(hs.N, hs.R, REMOVED_RATE));
@@ -85,10 +86,13 @@
       cur.misses++;
       timer.add(PENALTY_MS);
       cur.wrong.add(s);
+      const life = UI.Life.lose(); // 演出中に中断してもライフは減る
+      UI.refreshLife();
       render({ start: s, route: { start: s, trace: tr, cls: 'miss' } });
       $('#huntFeedback').innerHTML = `<span class="fb ng">${t('huntNg', LABELS[s], tr.crossings)}</span>`;
       setTimeout(() => {
         if (stale()) return;
+        if (life.life <= 0) { lifeOut(life); return; }
         $('#huntFeedback').innerHTML = '';
         cur.busy = false;
         render();
@@ -109,6 +113,18 @@
     $('#huntFeedback').innerHTML = '';
     show('huntSelect');
   });
+
+  // ライフ切れ: このステージの挑戦はここで終了（記録なし）
+  function lifeOut(g) {
+    cur.done = true;
+    $('#huntFeedback').innerHTML = '';
+    sheet(`<h3 class="ng serif">NO LIFE</h3>
+      <div class="life-big">${UI.Life.html()}</div>
+      <p class="sub">${t('lifeZeroStage', UI.fmtClock(g.nextMs))}</p>
+      <button class="btn" id="rSel">${t('toSelect')}</button>`, {
+      rSel: () => { closeModal('resultModal'); show('huntSelect'); },
+    });
+  }
 
   function finish() {
     const hs = cur.hs;
